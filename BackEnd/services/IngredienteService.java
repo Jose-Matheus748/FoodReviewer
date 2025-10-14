@@ -22,11 +22,11 @@ public class IngredienteService {
         return ingredienteRepository.findAll();
     }
 
-    public Optional<Ingrediente> findById(Integer id){
+    public Optional<Ingrediente> findById(Long id){
         return ingredienteRepository.findById(id);
     }
 
-    public void deleteIngrediente(Integer id){
+    public void deleteIngrediente(Long id){
         ingredienteRepository.deleteById(id);
     }
 }

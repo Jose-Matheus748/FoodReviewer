@@ -24,11 +24,11 @@ public class TabelaNutricionalService {
         return tabelaNutricionalRepository.findAll();
     }
 
-    public Optional<TabelaNutricional> findById(Integer id){
+    public Optional<TabelaNutricional> findById(Long id){
         return tabelaNutricionalRepository.findById(id);
     }
 
-    public void deleteIngrediente(Integer id){
+    public void deleteIngrediente(Long id){
         tabelaNutricionalRepository.deleteById(id);
     }
 }

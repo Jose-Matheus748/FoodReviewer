@@ -22,11 +22,11 @@ public class AlergenicoService {
         return alergenicoRepository.findAll();
     }
 
-    public Optional<Alergenico> findById(Integer id){
+    public Optional<Alergenico> findById(Long id){
         return alergenicoRepository.findById(id);
     }
 
-    public void deleteAlergenico(Integer id){
+    public void deleteAlergenico(Long id){
         alergenicoRepository.deleteById(id);
     }
 }

@@ -20,11 +20,11 @@ public class ProdutoService {
         return produtoRepository.findAll();
     }
 
-    public Optional<Produto> findById(Integer id){
+    public Optional<Produto> findById(Long id){
         return produtoRepository.findById(id);
     }
 
-    public void deleteProduto(Integer id){
+    public void deleteProduto(Long id){
         produtoRepository.deleteById(id);
     }
 }

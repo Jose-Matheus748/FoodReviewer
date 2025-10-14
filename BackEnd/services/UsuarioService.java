@@ -22,11 +22,11 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Optional<Usuario> findById(Integer id){
+    public Optional<Usuario> findById(Long id){
         return usuarioRepository.findById(id);
     }
 
-    public void deleteUsuario(Integer id){
+    public void deleteUsuario(Long id){
         usuarioRepository.deleteById(id);
     }
 }
