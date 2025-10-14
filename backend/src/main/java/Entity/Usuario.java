@@ -13,7 +13,7 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @NotBlank
     private String nome;
@@ -33,7 +33,7 @@ public class Usuario {
 
     }
 
-    public Usuario(Integer id, String nome, String email, String senha, LocalDateTime dataCriacao) {
+    public Usuario(Long id, String nome, String email, String senha, LocalDateTime dataCriacao) {
         this.id = id;
         this.nome = nome;
         this.email = email;
@@ -41,7 +41,7 @@ public class Usuario {
         this.dataCriacao = dataCriacao;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
