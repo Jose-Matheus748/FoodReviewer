@@ -16,7 +16,7 @@ public class Usuario {
     private Long id;
 
     @NotBlank
-    private String nome;
+    private String username;
 
     @Email
     @Column(nullable = false, unique = true)
@@ -33,9 +33,9 @@ public class Usuario {
 
     }
 
-    public Usuario(Long id, String nome, String email, String senha, LocalDateTime dataCriacao) {
+    public Usuario(Long id, String username, String email, String senha, LocalDateTime dataCriacao) {
         this.id = id;
-        this.nome = nome;
+        this.username = username;
         this.email = email;
         this.senha = senha;
         this.dataCriacao = dataCriacao;
@@ -49,12 +49,12 @@ public class Usuario {
         this.id = id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getuserName() {
+        return username;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setuserName(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
