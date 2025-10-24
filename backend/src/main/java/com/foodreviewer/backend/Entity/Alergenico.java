@@ -15,7 +15,7 @@ public class Alergenico {
     @Column(unique = true, nullable = false)
     private String nome;
 
-    @ManyToMany(mappedBy = "alergenicos")
+    @Transient  //@ManyToMany(mappedBy = "alergenicos")
     private List<Ingrediente> ingredientes;
 
     // Getters, setters, construtores
