@@ -7,3 +7,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review,Long> {
 }
+
+/*package com.foodreviewer.backend.repositories;
+
+import com.foodreviewer.backend.Entity.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
+}
+*/

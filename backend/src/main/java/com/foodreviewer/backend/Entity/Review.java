@@ -2,12 +2,16 @@ package com.foodreviewer.backend.Entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Review")
+@Getter
+@Setter
 public class Review {
 
     @Id
@@ -41,7 +45,7 @@ public class Review {
         this.produto = produto;
     }
 
-    public Long getId() {
+    /*public Long getId() {
         return id;
     }
 
@@ -88,7 +92,7 @@ public class Review {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
-    }
+    }*/
 
 
 

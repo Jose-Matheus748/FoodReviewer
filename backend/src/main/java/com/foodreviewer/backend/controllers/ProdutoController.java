@@ -12,7 +12,7 @@ public class ProdutoController {
         this.produtoRepository = produtoRepository;
     }
 
-    @PostMapping("/produto")
+    @PostMapping("/produtoPost")
     public Produto criarProduto(@RequestBody Produto produto) {
         System.out.println("Recebido produto: " + produto.getNome());
         System.out.println("Da marca: " + produto.getMarca());
