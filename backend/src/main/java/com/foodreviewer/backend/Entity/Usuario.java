@@ -3,12 +3,17 @@ package com.foodreviewer.backend.Entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuarios")
+@Getter
+@Setter
 public class Usuario {
 
     @Id
@@ -41,7 +46,7 @@ public class Usuario {
         this.dataCriacao = dataCriacao;
     }
 
-    public Long getId() {
+    /*public Long getId() {
         return id;
     }
 
@@ -79,7 +84,7 @@ public class Usuario {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
-    }
+    }*/
 
     // Getters e setters...
 }
