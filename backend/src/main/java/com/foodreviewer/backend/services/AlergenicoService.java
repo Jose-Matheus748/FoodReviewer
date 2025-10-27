@@ -29,4 +29,12 @@ public class AlergenicoService {
     public void deleteAlergenico(Long id){
         alergenicoRepository.deleteById(id);
     }
+
+    public Optional<Alergenico> updateAlergenico(Alergenico updateAlergenico, Long id){
+        return Optional.of(alergenicoRepository.findById(id).map(alergenico -> {
+            alergenico.setNome(updateAlergenico.getNome());
+            alergenico.setIngredientes(updateAlergenico.getIngredientes());
+            return alergenicoRepository.save(alergenico);
+        }).orElseThrow(()-> new RuntimeException("Alergenico não existe")));
+    }
 }

@@ -46,7 +46,7 @@ public class Usuario {
         this.dataCriacao = dataCriacao;
     }
 
-    /*public Long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -84,7 +84,7 @@ public class Usuario {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
-    }*/
+    }
 
     // Getters e setters...
 }

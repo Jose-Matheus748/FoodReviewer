@@ -1,21 +1,27 @@
 package com.foodreviewer.backend.controllers;
 
 import com.foodreviewer.backend.Entity.Usuario;
+import com.foodreviewer.backend.dto.UsuarioDTO;
 import com.foodreviewer.backend.repositories.UsuarioRepository;
+import com.foodreviewer.backend.services.UsuarioService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/usuarios")
 public class UsuarioController {
-    private final UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository){
-        this.usuarioRepository = usuarioRepository;
+    public UsuarioController(UsuarioService usuarioService){
+        this.usuarioService = usuarioService;
     }
 
-    @PostMapping("/usuarioPost")
-    public Usuario criarUsuario(@RequestBody Usuario usuario){
+    @PostMapping
+    public ResponseEntity<UsuarioDTO> criarUsuario(@RequestBody Usuario usuario){
         System.out.println("Recebido Usuario: " + usuario.getEmail());
-        return usuarioRepository.save(usuario);
+        return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
     }
+
+
 
 }

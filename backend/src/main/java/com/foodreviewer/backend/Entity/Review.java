@@ -45,7 +45,7 @@ public class Review {
         this.produto = produto;
     }
 
-    /*public Long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -92,8 +92,7 @@ public class Review {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
-    }*/
-
+    }
 
 
     // Getters e setters...

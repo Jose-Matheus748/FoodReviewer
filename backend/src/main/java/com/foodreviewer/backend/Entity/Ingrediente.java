@@ -34,5 +34,38 @@ public class Ingrediente {
     private List<Alergenico> alergenicos;
 
     // Getters, setters, construtores
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public List<Produto> getProdutos() {
+        return produtos;
+    }
+
+    public void setProdutos(List<Produto> produtos) {
+        this.produtos = produtos;
+    }
+
+    public List<Alergenico> getAlergenicos() {
+        return alergenicos;
+    }
+
+    public void setAlergenicos(List<Alergenico> alergenicos) {
+        this.alergenicos = alergenicos;
+    }
 }
 

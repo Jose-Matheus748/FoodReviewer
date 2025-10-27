@@ -82,4 +82,92 @@ public class Produto {
     public String getMarca() {
         return marca;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public BigDecimal getPreco() {
+        return preco;
+    }
+
+    public void setPreco(BigDecimal preco) {
+        this.preco = preco;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public BigDecimal getPesoGramas() {
+        return pesoGramas;
+    }
+
+    public void setPesoGramas(BigDecimal pesoGramas) {
+        this.pesoGramas = pesoGramas;
+    }
+
+    public BigDecimal getDensidade() {
+        return densidade;
+    }
+
+    public void setDensidade(BigDecimal densidade) {
+        this.densidade = densidade;
+    }
+
+    public LocalDateTime getDataCadastro() {
+        return dataCadastro;
+    }
+
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+        this.dataCadastro = dataCadastro;
+    }
+
+    public TabelaNutricional getTabelaNutricional() {
+        return tabelaNutricional;
+    }
+
+    public void setTabelaNutricional(TabelaNutricional tabelaNutricional) {
+        this.tabelaNutricional = tabelaNutricional;
+    }
+
+    public List<String> getIngredientes() {
+        return ingredientes;
+    }
+
+    public void setIngredientes(List<String> ingredientes) {
+        this.ingredientes = ingredientes;
+    }
+
+    public List<String> getAlergenicos() {
+        return alergenicos;
+    }
+
+    public void setAlergenicos(List<String> alergenicos) {
+        this.alergenicos = alergenicos;
+    }
 }

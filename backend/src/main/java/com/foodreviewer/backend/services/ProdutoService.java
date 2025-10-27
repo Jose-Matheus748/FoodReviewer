@@ -27,4 +27,21 @@ public class ProdutoService {
     public void deleteProduto(Long id){
         produtoRepository.deleteById(id);
     }
+
+    public Optional<Produto> updateProduto(Produto updateProduto, Long id){
+        return Optional.of(produtoRepository.findById(id).map(produto -> {
+            produto.setNome(updateProduto.getNome());
+            produto.setMarca(updateProduto.getMarca());
+            produto.setTipo(updateProduto.getTipo());
+            produto.setPreco(updateProduto.getPreco());
+            produto.setAlergenicos(updateProduto.getAlergenicos());
+            produto.setDensidade(updateProduto.getDensidade());
+            produto.setDescricao(updateProduto.getDescricao());
+            produto.setDataCadastro(updateProduto.getDataCadastro());
+            produto.setIngredientes(updateProduto.getIngredientes());
+            produto.setPesoGramas(updateProduto.getPesoGramas());
+            produto.setTabelaNutricional(updateProduto.getTabelaNutricional());
+            return produtoRepository.save(produto);
+        }).orElseThrow(()-> new RuntimeException("Produto não existe")));
+    }
 }

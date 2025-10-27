@@ -29,4 +29,13 @@ public class IngredienteService {
     public void deleteIngrediente(Long id){
         ingredienteRepository.deleteById(id);
     }
+
+    public Optional<Ingrediente> updateIngrediente(Ingrediente updateIngrediente, Long id){
+        return Optional.of(ingredienteRepository.findById(id).map(ingrediente -> {
+            ingrediente.setNome(updateIngrediente.getNome());
+            ingrediente.setAlergenicos(updateIngrediente.getAlergenicos());
+            ingrediente.setProdutos(updateIngrediente.getProdutos());
+            return ingredienteRepository.save(ingrediente);
+        }).orElseThrow(()-> new RuntimeException("Ingrediente não existe")));
+    }
 }
