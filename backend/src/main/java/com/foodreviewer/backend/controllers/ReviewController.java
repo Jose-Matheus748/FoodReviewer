@@ -1,22 +1,62 @@
 package com.foodreviewer.backend.controllers;
 
 import com.foodreviewer.backend.Entity.Review;
-import com.foodreviewer.backend.Entity.Usuario;
-import com.foodreviewer.backend.repositories.ReviewRepository;
+import com.foodreviewer.backend.services.ReviewService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-public class ReviewController {
-    private final ReviewRepository reviewRepository;
+import java.util.List;
+import java.util.Optional;
 
-    public ReviewController(ReviewRepository reviewRepository){
-        this.reviewRepository = reviewRepository;
+@RestController
+@RequestMapping("/reviews")
+public class ReviewController {
+
+    private final ReviewService reviewService;
+
+    public ReviewController(ReviewService reviewService){
+        this.reviewService = reviewService;
     }
 
-    @PostMapping("/reviewPost")
-    public Review criarReview(@RequestBody Review review){
+    @PostMapping
+    public ResponseEntity<Review> criarReview(@Valid @RequestBody Review review){
         System.out.println("Recebido Usuario: " + review.getComentario());
-        return reviewRepository.save(review);
+        return ResponseEntity.ok(reviewService.saveReview(review));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Review>> findAll(){
+        return ResponseEntity.ok(reviewService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Optional<Review>> findById(Long id){
+        try{
+        return ResponseEntity.ok(reviewService.findById(id));
+    }catch (EntityNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<Optional<Review>> updateReview(@PathVariable Long id, @Valid @RequestBody Review review){
+        try{
+            return ResponseEntity.ok(reviewService.updateReview(review, id));
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Optional<Review>> deleteReview(@PathVariable Long id){
+        try{
+            reviewService.deleteReview(id);
+            return ResponseEntity.noContent().build();
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

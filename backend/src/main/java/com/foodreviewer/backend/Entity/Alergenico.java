@@ -1,6 +1,7 @@
 package com.foodreviewer.backend.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class Alergenico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nome não pode ser nulo")
     @Column(unique = true, nullable = false)
     private String nome;
 

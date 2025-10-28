@@ -1,6 +1,7 @@
 package com.foodreviewer.backend.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,9 +19,11 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @Column(columnDefinition = "TEXT")
     private String comentario;
 
+    @NotBlank(message = "Nota não pode estar vazia")
+    @DecimalMin(value = "1")
     private int nota; //vale de 0 a 5,incremental de 0,5 pontos, ou seja, um int de 0 a 10
 
     @ManyToOne

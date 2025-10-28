@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Entity
 @Table(name = "usuarios")
@@ -20,14 +21,14 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Username não pode ficar em branco")
     private String username;
 
     @Email
     @Column(nullable = false, unique = true)
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Senha não pode estar em branco")
     private String senha;
 
     @CreationTimestamp

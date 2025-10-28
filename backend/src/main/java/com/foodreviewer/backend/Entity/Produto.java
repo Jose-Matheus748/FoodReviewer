@@ -1,7 +1,9 @@
 package com.foodreviewer.backend.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Value;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -23,22 +25,31 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "O nome não pode estar em branco")
+    @Column(nullable = false, length = 100)
     private String nome;
 
+    @Column(columnDefinition = "TEXT")
     private String descricao;
 
+    @Column (columnDefinition = "TEXT")
     private String marca;
 
+    @NotBlank(message = "O preço não pode estar em branco")
+    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal preco;
 
-
+    @NotBlank(message = "O tipo do produto não pode estar em branco")
+    @Column(nullable = false)
     private String tipo;
     /*@Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoProduto tipo; // //deletar isso aqui
     //private String tipo; // ENUM: SOLIDO, LIQUIDO, PÓ*/
-
+    @NotBlank(message = "O peso não pode estar em branco")
+    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal pesoGramas;
 
     private BigDecimal densidade;
