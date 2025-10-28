@@ -1,49 +1,33 @@
-package br.com.foodreviewer.foodreviewer.controller;
+package com.foodreviewer.backend.controllers;
 
-import br.com.foodreviewer.foodreviewer.dto.UsuarioRequestDTO;
-import br.com.foodreviewer.foodreviewer.dto.UsuarioResponseDTO;
-import br.com.foodreviewer.foodreviewer.service.UsuarioService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+import com.foodreviewer.backend.Entity.Usuario;
+import com.foodreviewer.backend.dto.UsuarioDTO;
+import com.foodreviewer.backend.dto.LoginRequest; // Novo import
+import com.foodreviewer.backend.repositories.UsuarioRepository;
+import com.foodreviewer.backend.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/usuarios" )
 public class UsuarioController {
+    private UsuarioService usuarioService;
 
-    private final UsuarioService usuarioService;
-
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioDto dto) {
-        return new ResponseEntity<>(usuarioService.create(dto), HttpStatus.CREATED);
+    public ResponseEntity<UsuarioDTO> criarUsuario(@RequestBody Usuario usuario){
+        System.out.println("Recebido Usuario: " + usuario.getEmail());
+        return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
     }
 
-    @GetMapping
-    public ResponseEntity<List<UsuarioResponseDTO>> findAll() {
-        return ResponseEntity.ok(usuarioService.findAll());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(usuarioService.findById(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> updateUsuario(@PathVariable Long id, @RequestBody UsuarioDto dto) {
-        return ResponseEntity.ok(usuarioService.update(id, dto));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
-        usuarioService.delete(id);
-        return ResponseEntity.noContent().build();
+    // Novo endpoint de login
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioDTO> login(@RequestBody LoginRequest loginRequest) {
+        return usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(401).build()); // 401 Unauthorized
     }
 }
-
