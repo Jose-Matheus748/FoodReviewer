@@ -13,7 +13,7 @@ import java.util.Optional;
 public class UsuarioService {
 
     private UsuarioDTO toDto(Usuario usuario){
-        return new UsuarioDTO(usuario.getId(), usuario.getUsername(), usuario.getEmail());
+        return new UsuarioDTO(usuario.getId(), usuario.getApelido(), usuario.getEmail());
     }
 
     @Autowired
@@ -42,7 +42,7 @@ public class UsuarioService {
     public Optional<UsuarioDTO> updateUsuario(Usuario updateUsuario, Long id){
         return Optional.of(usuarioRepository.findById(id).map(usuario ->
         {
-            usuario.setUsername(updateUsuario.getUsername());
+            usuario.setApelido(updateUsuario.getApelido());
             usuario.setEmail(updateUsuario.getEmail());
             usuario.setSenha(updateUsuario.getSenha());
             usuario.setDataCriacao(updateUsuario.getDataCriacao());
