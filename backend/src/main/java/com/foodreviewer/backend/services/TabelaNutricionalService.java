@@ -26,7 +26,7 @@ public class TabelaNutricionalService {
         return tabelaNutricionalRepository.findById(id);
     }
 
-    public void deleteIngrediente(Long id){
+    public void deleteTabelaNutricional(Long id){
         tabelaNutricionalRepository.deleteById(id);
     }
 

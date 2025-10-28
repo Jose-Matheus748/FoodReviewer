@@ -1,34 +1,49 @@
-package com.foodreviewer.backend.controllers;
+package br.com.foodreviewer.foodreviewer.controller;
 
-import com.foodreviewer.backend.Entity.Usuario;
-import com.foodreviewer.backend.dto.UsuarioDTO;
-import com.foodreviewer.backend.dto.LoginRequest; // Novo import
-import com.foodreviewer.backend.repositories.UsuarioRepository;
-import com.foodreviewer.backend.services.UsuarioService;
+import br.com.foodreviewer.foodreviewer.dto.UsuarioRequestDTO;
+import br.com.foodreviewer.foodreviewer.dto.UsuarioResponseDTO;
+import br.com.foodreviewer.foodreviewer.service.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/usuarios" )
-public class UsuarioController {
-    private UsuarioService usuarioService;
+import java.util.List;
 
-    public UsuarioController(UsuarioService usuarioService){
+@RestController
+@RequestMapping("/usuarios")
+public class UsuarioController {
+
+    private final UsuarioService usuarioService;
+
+    public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioDTO> criarUsuario(@RequestBody Usuario usuario){
-        System.out.println("Recebido Usuario: " + usuario.getEmail());
-        return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
+    public ResponseEntity<UsuarioResponseDTO> criarUsuario(@Valid @RequestBody UsuarioDto dto) {
+        return new ResponseEntity<>(usuarioService.create(dto), HttpStatus.CREATED);
     }
 
-    // Novo endpoint de login
-    @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).build()); // 401 Unauthorized
+    @GetMapping
+    public ResponseEntity<List<UsuarioResponseDTO>> findAll() {
+        return ResponseEntity.ok(usuarioService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.findById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UsuarioResponseDTO> updateUsuario(@PathVariable Long id, @RequestBody UsuarioDto dto) {
+        return ResponseEntity.ok(usuarioService.update(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
+        usuarioService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
+
