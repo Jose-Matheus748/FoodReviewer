@@ -2,17 +2,51 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // useNavigate adicionado
+import { useAuth } from '../context/AuthContext'; // CORRIGIDO
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 
 export default function Login() {
+  const navigate = useNavigate(); // Uso do hook de navegação
+  const { login } = useAuth(); // Uso do hook de autenticação
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log("Login attempt:", { email, password });
+
+    try {
+      const response = await fetch("/api/usuarios/login", { // Novo endpoint
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          senha: password,
+        }),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        // Armazena o usuário no contexto
+        login({
+          id: userData.id,
+          apelido: userData.apelido,
+          email: userData.email,
+        });
+        console.log("Login realizado com sucesso!");
+        alert("Login realizado com sucesso!");
+        navigate("/"); // Redireciona para a tela inicial
+      } else {
+        const errorData = await response.json();
+        console.error("Falha no login:", errorData.message || response.statusText);
+        alert("Erro ao fazer login: " + (errorData.message || response.statusText));
+      }
+    } catch (error) {
+      console.error("Erro de rede/conexão:", error);
+      alert("Erro de rede. Verifique sua conexão e tente novamente.");
+    }
   };
 
   return (

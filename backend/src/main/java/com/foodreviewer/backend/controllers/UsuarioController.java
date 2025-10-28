@@ -2,13 +2,14 @@ package com.foodreviewer.backend.controllers;
 
 import com.foodreviewer.backend.Entity.Usuario;
 import com.foodreviewer.backend.dto.UsuarioDTO;
+import com.foodreviewer.backend.dto.LoginRequest; // Novo import
 import com.foodreviewer.backend.repositories.UsuarioRepository;
 import com.foodreviewer.backend.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/usuarios" )
 public class UsuarioController {
     private UsuarioService usuarioService;
 
@@ -22,6 +23,11 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
     }
 
-
-
+    // Novo endpoint de login
+    @PostMapping("/login")
+    public ResponseEntity<UsuarioDTO> login(@RequestBody LoginRequest loginRequest) {
+        return usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(401).build()); // 401 Unauthorized
+    }
 }

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
+import { useAuth } from '../context/AuthContext'; // CORRIGIDO
 
 export default function Cadastro() {
   const [username, setNome] = useState("");
@@ -11,6 +12,8 @@ export default function Cadastro() {
   const [senha, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth(); // Uso do hook de autenticação
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,9 +37,16 @@ export default function Cadastro() {
       });
 
       if (response.ok) {
+        const userData = await response.json();
+        
+        login({
+          id: userData.id,
+          apelido: userData.apelido,
+          email: userData.email,
+        });
         console.log("Cadastro realizado com sucesso!");
         alert("Cadastro realizado com sucesso!");
-        navigate("/login"); // redireciona após sucesso
+        navigate("/"); // redireciona após sucesso
       } else {
         const errorData = await response.json();
         console.error("Falha no cadastro:", errorData.message || response.statusText);

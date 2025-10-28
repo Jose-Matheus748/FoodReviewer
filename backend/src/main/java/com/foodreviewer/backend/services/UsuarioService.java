@@ -13,7 +13,7 @@ import java.util.Optional;
 public class UsuarioService {
 
     private UsuarioDTO toDto(Usuario usuario){
-        return new UsuarioDTO(usuario.getId(), usuario.getEmail(), usuario.getUsername());
+        return new UsuarioDTO(usuario.getId(), usuario.getUsername(), usuario.getEmail());
     }
 
     @Autowired
@@ -49,5 +49,13 @@ public class UsuarioService {
             return toDto(usuarioRepository.save(usuario));
 
         }).orElseThrow(() -> new RuntimeException("Usuário não existe")));
+    }
+
+    // método de login
+    public Optional<UsuarioDTO> login(String email, String senha) {
+        return usuarioRepository.findByEmail(email)
+                // Comparação de senha simples (sem criptografia)
+                .filter(usuario -> usuario.getSenha().equals(senha))
+                .map(this::toDto);
     }
 }
