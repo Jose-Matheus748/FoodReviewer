@@ -46,6 +46,8 @@ public class Usuario {
         this.dataCriacao = dataCriacao;
     }
 
+
+    //vou deixar os gets e sets mas n precisa pois o @getters e @setters acima do construtor já fazem ele automaticamente
     public Long getId() {
         return id;
     }
@@ -54,13 +56,13 @@ public class Usuario {
         this.id = id;
     }
 
-    public String getuserName() {
+    public String getUsername() {
         return username;
     }
 
-    public void setuserName(String username) {
+    public void setUsername(String username) {
         this.username = username;
-    }
+    } //é importante que seja getUsername, e setUsername, com U maiusculo, pois da erro de leitura
 
     public String getEmail() {
         return email;

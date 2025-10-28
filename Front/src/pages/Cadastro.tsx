@@ -2,22 +2,50 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 
 export default function Cadastro() {
-  const [nome, setNome] = useState("");
+  const [username, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [senha, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      console.error("Passwords don't match");
+
+    if (senha !== confirmPassword) {
+      alert("As senhas não coincidem!");
       return;
     }
-    console.log("Signup attempt:", { nome, email, password });
+
+    try {
+      const response = await fetch("/api/usuarios", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          email: email,
+          senha: senha,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Cadastro realizado com sucesso!");
+        alert("Cadastro realizado com sucesso!");
+        navigate("/login"); // redireciona após sucesso
+      } else {
+        const errorData = await response.json();
+        console.error("Falha no cadastro:", errorData.message || response.statusText);
+        alert("Erro ao cadastrar: " + (errorData.message || response.statusText));
+      }
+    } catch (error) {
+      console.error("Erro de rede/conexão:", error);
+      alert("Erro de rede. Verifique sua conexão e tente novamente.");
+    }
   };
 
   return (
@@ -27,32 +55,32 @@ export default function Cadastro() {
           {/* Logo */}
           <div className="flex justify-center mb-8">
             <Link to="/" className="hover:opacity-80 transition-opacity">
-              <img 
-                src={logoFoodReviewer} 
-                alt="FoodReviewer Logo" 
+              <img
+                src={logoFoodReviewer}
+                alt="FoodReviewer Logo"
                 className="w-24 h-24 object-contain cursor-pointer"
               />
             </Link>
           </div>
 
-          {/* Titulo */}
+          {/* Título */}
           <h1 className="text-3xl font-bold text-white text-center mb-8">
             Cadastro
           </h1>
 
-          {/* Formulario de cadastro */}
+          {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="nome" className="text-accent font-semibold text-base">
+              <Label htmlFor="username" className="text-accent font-semibold text-base">
                 Nome
               </Label>
               <Input
-                id="nome"
+                id="username"
                 type="text"
-                value={nome}
+                value={username}
                 onChange={(e) => setNome(e.target.value)}
                 className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
-                placeholder="Digite seu nome"
+                placeholder="Digite seu username"
                 required
               />
             </div>
@@ -73,13 +101,13 @@ export default function Cadastro() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-accent font-semibold text-base">
+              <Label htmlFor="senha" className="text-accent font-semibold text-base">
                 Senha
               </Label>
               <Input
-                id="password"
-                type="password"
-                value={password}
+                id="senha"
+                type="senha"
+                value={senha}
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
                 placeholder="Digite sua senha"
@@ -93,7 +121,7 @@ export default function Cadastro() {
               </Label>
               <Input
                 id="confirmPassword"
-                type="password"
+                type="senha"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
@@ -112,10 +140,7 @@ export default function Cadastro() {
             <div className="text-center mt-6">
               <p className="text-white/80 text-sm">
                 Já tem uma conta?{" "}
-                <Link 
-                  to="/login" 
-                  className="text-accent font-semibold hover:underline"
-                >
+                <Link to="/login" className="text-accent font-semibold hover:underline">
                   Faça login
                 </Link>
               </p>
