@@ -5,6 +5,7 @@ import com.foodreviewer.backend.dto.UsuarioDTO;
 import com.foodreviewer.backend.dto.LoginRequest; // Novo import
 import com.foodreviewer.backend.repositories.UsuarioRepository;
 import com.foodreviewer.backend.services.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +26,7 @@ public class UsuarioController {
 
     // Novo endpoint de login
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<UsuarioDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
         return usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(401).build()); // 401 Unauthorized
