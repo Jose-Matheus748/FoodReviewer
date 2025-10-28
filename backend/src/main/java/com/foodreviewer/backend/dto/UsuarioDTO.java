@@ -13,7 +13,7 @@ public class UsuarioDTO {
     private Long id;
 
     @NotBlank(message = "Username não pode ficar em branco")
-    private String username;
+    private String apelido;
 
     @Email
     @Column(nullable = false, unique = true)
@@ -22,9 +22,9 @@ public class UsuarioDTO {
     public UsuarioDTO() {
     }
 
-    public UsuarioDTO(Long id, String username, String email) {
+    public UsuarioDTO(Long id, String apelido, String email) {
         this.id = id;
-        this.username = username;
+        this.apelido = apelido;
         this.email = email;
     }
 
@@ -36,12 +36,12 @@ public class UsuarioDTO {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getApelido() {
+        return apelido;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setApelido(String apelido) {
+        this.apelido = apelido;
     }
 
     public String getEmail() {
