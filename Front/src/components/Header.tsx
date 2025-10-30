@@ -20,9 +20,9 @@ export const Header = () => {
             <div className="flex items-center space-x-2">
               {/* Ícone do Usuário (primeira letra do apelido) */}
               <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-primary font-bold text-lg shadow-md">
-                {usuario.username.charAt(0).toUpperCase()}
+                {usuario.apelido.charAt(0).toUpperCase()}
               </div>
-              <span className="text-primary font-medium hidden sm:inline">{usuario.username}</span>
+              <span className="text-primary font-medium hidden sm:inline">{usuario.apelido}</span>
             </div>
             {/* Botão de Logout */}
             <Button

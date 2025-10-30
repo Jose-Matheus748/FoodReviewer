@@ -22,7 +22,7 @@ public class Usuario {
     private Long id;
 
     @NotBlank(message = "Username não pode ficar em branco")
-    private String apelido;
+    private String username;
 
     @Email
     @Column(nullable = false, unique = true)
@@ -39,9 +39,9 @@ public class Usuario {
 
     }
 
-    public Usuario(Long id, String apelido, String email, String senha, LocalDateTime dataCriacao) {
+    public Usuario(Long id, String username, String email, String senha, LocalDateTime dataCriacao) {
         this.id = id;
-        this.apelido = apelido;
+        this.username = username;
         this.email = email;
         this.senha = senha;
         this.dataCriacao = dataCriacao;
@@ -58,11 +58,11 @@ public class Usuario {
     }
 
     public String getApelido() {
-        return apelido;
+        return username;
     }
 
     public void setApelido(String apelido) {
-        this.apelido = apelido;
+        this.username = apelido;
     } //é importante que seja getUsername, e setUsername, com U maiusculo, pois da erro de leitura
 
     public String getEmail() {

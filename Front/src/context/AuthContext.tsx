@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(() => {
     // Tenta carregar o usuário do localStorage ao iniciar
-    const storedUser = localStorage.getItem('usuario');
+    const storedUser = localStorage.getItem('apelido');
     // Nota: O apelido no DTO do Spring Boot é o 'username' da entidade Usuario.
     return storedUser ? JSON.parse(storedUser) : null;
   });

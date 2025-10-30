@@ -49,7 +49,7 @@ public class TabelaNutricionalController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Optional<TabelaNutricional>> deleteTabelaNutricional(@PathVariable Long id){
+    public ResponseEntity<Optional<TabelaNutricional>> deleteTabelaNutricional(@PathVariable long id){
         try{
             tabelaNutricionalService.deleteTabelaNutricional(id);
             return ResponseEntity.noContent().build();
