@@ -41,7 +41,7 @@ export default function Cadastro() {
         
         login({
           id: userData.id,
-          username: userData.apelido,
+          apelido: userData.apelido,
           email: userData.email,
         });
         console.log("Cadastro realizado com sucesso!");
