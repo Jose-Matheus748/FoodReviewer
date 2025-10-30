@@ -7,7 +7,7 @@ import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 import { useAuth } from '../context/AuthContext'; // CORRIGIDO
 
 export default function Cadastro() {
-  const [username, setNome] = useState("");
+  const [apelido, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,7 +30,7 @@ export default function Cadastro() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: username,
+          apelido: apelido,
           email: email,
           senha: senha,
         }),
@@ -87,7 +87,7 @@ export default function Cadastro() {
               <Input
                 id="username"
                 type="text"
-                value={username}
+                value={apelido}
                 onChange={(e) => setNome(e.target.value)}
                 className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
                 placeholder="Digite seu username"
