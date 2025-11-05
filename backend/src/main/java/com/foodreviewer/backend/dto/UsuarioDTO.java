@@ -1,26 +1,21 @@
 package com.foodreviewer.backend.dto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import com.foodreviewer.backend.Entity.Usuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class UsuarioDTO {
 
-    @Id
-    @GeneratedValue
     private Long id;
 
-    @NotBlank(message = "Username não pode ficar em branco")
+    @NotBlank(message = "Apelido não pode ficar em branco")
     private String apelido;
 
-    @Email
-    @Column(nullable = false, unique = true)
+    @Email(message = "Email inválido")
+    @NotBlank(message = "Email é obrigatório")
     private String email;
 
-    public UsuarioDTO() {
-    }
+    public UsuarioDTO() {}
 
     public UsuarioDTO(Long id, String apelido, String email) {
         this.id = id;
@@ -50,5 +45,22 @@ public class UsuarioDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public static UsuarioDTO toDTO(Usuario usuario) {
+        return new UsuarioDTO(
+                usuario.getId(),
+                usuario.getApelido(),
+                usuario.getEmail()
+        );
+    }
+
+    public static Usuario toEntity(UsuarioDTO dto) {
+        Usuario usuario = new Usuario();
+        usuario.setId(dto.getId());
+        usuario.setApelido(dto.getApelido());
+        usuario.setEmail(dto.getEmail());
+
+        return usuario;
     }
 }
