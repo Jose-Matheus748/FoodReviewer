@@ -70,7 +70,7 @@ const CreateReview = () => {
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descrição da avaliação"
+              placeholder="Digite uma descrição"
               className="min-h-[200px] bg-primary/50 border-2 border-accent/20 text-white placeholder:text-white/40 focus:border-accent resize-none text-base"
             />
           </div>

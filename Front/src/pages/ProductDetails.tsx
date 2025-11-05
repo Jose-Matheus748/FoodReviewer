@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { Header } from "@/components/Header";
+import { DecorativeBlobs } from "@/components/DecorativeBlobs";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { User, Plus, Star } from "lucide-react";
 import logo from "@/assets/logo-foodreviewer.png";
 
-// Tipo para avaliação
+// ✅ Adicionamos a constante da URL base do backend
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+// Tipos auxiliares
 interface Review {
   id: number;
   userName: string;
@@ -13,138 +18,269 @@ interface Review {
   comment: string;
 }
 
-// Tipo para informação nutricional
 interface NutritionalInfo {
   item: string;
   quantidade: string;
   valorDiario: string;
 }
 
+interface ProductData {
+  id: number;
+  nome: string; // ✅ alterado de 'name' para 'nome' (igual ao backend)
+  descricao: string;
+  marca: string;
+  preco: number;
+  tipo: string;
+  pesoGramas: number;
+  densidade: number;
+  averageRating?: number;
+  tabelaNutricional?: {
+    calorias?: number;
+    proteinas?: number;
+    carboidratos?: number;
+    gorduras?: number;
+  };
+}
+
+// Componente principal
 const ProductDetails = () => {
   const { id } = useParams();
 
-  // DADOS VAZIOS - serão preenchidos com dados do banco
-  const [productData] = useState({
-    name: "", // virá do banco de dados
-    imageUrl: "/placeholder.svg", // virá do banco de dados
-    ingredients: "", // virá do banco de dados
-    averageRating: 0, // calculado com base nas avaliações
-    labelImageUrl: "/placeholder.svg", // virá do banco de dados
-  });
+  // Estados principais
+  const [productData, setProductData] = useState<ProductData | null>(null);
+  const [nutritionalInfo, setNutritionalInfo] = useState<NutritionalInfo[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [nutritionalInfo] = useState<NutritionalInfo[]>([]); // virá do banco de dados
+  // ✅ useEffect para buscar dados do produto pelo ID
+  useEffect(() => {
+    if (!id) return;
 
-  const [reviews] = useState<Review[]>([]); // virá do banco de dados
+    const fetchProductData = async () => {
+      setLoading(true);
+      setError(null);
 
-  const [userName] = useState(""); // virá do banco de dados (usuário autenticado)
+      try {
+        // ✅ Corrigido: usamos a URL base do backend (porta 8080)
+        const response = await fetch(`/api/produtos/${id}`);
 
-  // Função para renderizar estrelas
-  const renderStars = (rating: number) => {
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar produto: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // ✅ Atualizado: agora mapeia os nomes reais da entidade Produto
+        setProductData({
+          id: data.id,
+          nome: data.nome,
+          descricao: data.descricao,
+          marca: data.marca,
+          preco: data.preco,
+          tipo: data.tipo,
+          pesoGramas: data.pesoGramas,
+          densidade: data.densidade,
+          averageRating: data.averageRating || 0,
+          tabelaNutricional: data.tabelaNutricional || {},
+        });
+
+        if (data.nutritionalInfo) setNutritionalInfo(data.nutritionalInfo);
+        if (data.reviews) setReviews(data.reviews);
+      } catch (err) {
+        console.error("Erro ao buscar produto:", err);
+        setError("Não foi possível carregar os dados do produto.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProductData();
+  }, [id]);
+
+  // Função auxiliar: renderizar estrelas de avaliação
+  const renderStars = (rating: number) => (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-6 h-6 ${
+            star <= rating ? "fill-accent text-accent" : "fill-gray-400 text-gray-400"
+          }`}
+        />
+      ))}
+    </div>
+  );
+
+  // Renderização condicional
+  if (loading) {
     return (
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`w-6 h-6 ${
-              star <= rating ? "fill-accent text-accent" : "fill-gray-400 text-gray-400"
-            }`}
-          />
-        ))}
+      <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
+        <p className="text-lg text-gray-700 font-semibold">Carregando produto...</p>
       </div>
     );
-  };
+  }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
+        <p className="text-lg text-red-600 font-semibold">{error}</p>
+      </div>
+    );
+  }
+
+  if (!productData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
+        <p className="text-lg text-gray-600">Produto não encontrado.</p>
+      </div>
+    );
+  }
+
+  // Renderização principal
   return (
     <div className="min-h-screen bg-[#d4d4d4]">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-primary to-secondary py-4 px-6 flex items-center justify-between shadow-lg">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="FoodReviewer Logo" className="w-10 h-10 object-contain" />
-          <h1 className="text-2xl md:text-3xl font-bold text-accent">FoodReviewer</h1>
-        </Link>
-        <div className="flex items-center gap-2 text-white">
-          <User className="w-6 h-6" />
-          {userName && <span className="font-medium">{userName}</span>}
-        </div>
-      </header>
+      <DecorativeBlobs />
+      <Header />
 
-      {/* Conteúdo Principal */}
+      {/* Conteúdo principal */}
       <main className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Seção do Produto */}
+        {/* Seção do produto */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Imagem do Produto */}
             <div className="flex items-center justify-center bg-[#d4d4d4] rounded-lg p-4">
               <img
-                src={productData.imageUrl}
-                alt={productData.name}
+                src={"/placeholder.svg"}
+                alt={productData.nome}
                 className="max-w-full h-auto object-contain max-h-64"
               />
             </div>
 
             {/* Informações do Produto */}
             <div className="md:col-span-2 space-y-4">
-              {productData.name ? (
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  {productData.name}
-                </h2>
-              ) : (
-                <div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-              )}
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                {productData.nome}
+              </h2>
 
-              {productData.ingredients && (
+              {/* Descrição */}
+              {productData.descricao && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Ingredientes:</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">Descrição:</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">
-                    {productData.ingredients}
+                    {productData.descricao}
                   </p>
                 </div>
               )}
 
-              {/* Avaliação Média */}
-              <div className="pt-2">
-                {renderStars(Math.round(productData.averageRating))}
+              {/* Marca */}
+              {productData.marca && (
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  <strong>Marca:</strong> {productData.marca}
+                </p>
+              )}
+
+              {/* Tipo */}
+              {productData.tipo && (
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  <strong>Tipo:</strong> {productData.tipo}
+                </p>
+              )}
+
+              {/* Preço */}
+              {productData.preco && (
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  <strong>Preço:</strong> R$ {productData.preco}
+                </p>
+              )}
+
+              {/* Peso e Densidade */}
+              {(productData.pesoGramas || productData.densidade) && (
+                <div className="flex flex-col md:flex-row gap-4">
+                  {productData.pesoGramas && (
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      <strong>Peso:</strong> {productData.pesoGramas} g
+                    </p>
+                  )}
+                  {productData.densidade && (
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      <strong>Densidade:</strong> {productData.densidade}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              
+              {/* Avaliação média */}
+              <div className="pt-2 flex flex-col items-start gap-2">
+                {/* Se tiver avaliações */}
+                {productData.averageRating && productData.averageRating > 0 ? (
+                  <>
+                    {/* Estrelas preenchidas conforme média */}
+                    <div className="flex justify-start gap-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-10 h-10 md:w-12 md:h-12 transition-colors ${
+                            star <= Math.round(productData.averageRating)
+                              ? "fill-accent text-accent"
+                              : "fill-transparent text-accent/40"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm text-gray-700 font-medium">
+                      Média de avaliações:{" "}
+                      <span className="text-accent font-semibold">
+                        {productData.averageRating.toFixed(1)}
+                      </span>{" "}
+                      / 5
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    {/* Estrelas vazias (produto ainda sem avaliações) */}
+                    <div className="flex justify-start gap-3">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className="w-10 h-10 md:w-12 md:h-12 fill-transparent text-accent/40"
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm text-gray-500 italic mt-1">
+                      Este produto ainda não possui avaliações.
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Tabela Nutricional - Só aparece se houver dados */}
-        {nutritionalInfo.length > 0 && (
-          <Card className="p-6 mb-6 bg-white shadow-lg">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Tabela nutricional</h3>
-            <p className="text-sm text-gray-600 mb-4">Porção de 30G - 6 biscoitos</p>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-gray-300">
-                    <th className="text-left py-2 px-4 text-gray-700 font-semibold">ITEM</th>
-                    <th className="text-left py-2 px-4 text-gray-700 font-semibold">QTDE. POR PORÇÃO</th>
-                    <th className="text-left py-2 px-4 text-gray-700 font-semibold">VALORES DIÁRIOS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {nutritionalInfo.map((info, index) => (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-700">{info.item}</td>
-                      <td className="py-3 px-4 text-gray-700">{info.quantidade}</td>
-                      <td className="py-3 px-4 text-gray-700">{info.valorDiario}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
+        {/* Tabela Nutricional */}
+        {productData.tabelaNutricional && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Tabela Nutricional
+            </h3>
+            <ul className="text-sm text-gray-700 space-y-2">
+              <li>Calorias: {productData.tabelaNutricional.calorias}</li>
+              <li>Proteínas: {productData.tabelaNutricional.proteinas} g</li>
+              <li>Carboidratos: {productData.tabelaNutricional.carboidratos} g</li>
+              <li>Gorduras: {productData.tabelaNutricional.gorduras} g</li>
+            </ul>
+          </div>
         )}
 
         {/* Seção de Avaliações */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <h2 
-              className="text-3xl font-bold text-accent" 
-              style={{ 
-                textShadow: '2px 2px 0 #8b009a, -1px -1px 0 #8b009a, 1px -1px 0 #8b009a, -1px 1px 0 #8b009a, 1px 1px 0 #8b009a'
+            <h2
+              className="text-3xl font-bold text-accent"
+              style={{
+                textShadow:
+                  "2px 2px 0 #8b009a, -1px -1px 0 #8b009a, 1px -1px 0 #8b009a, -1px 1px 0 #8b009a, 1px 1px 0 #8b009a",
               }}
             >
               Avaliações:
@@ -159,7 +295,6 @@ const ProductDetails = () => {
             </Link>
           </div>
 
-          {/* Lista de Avaliações */}
           <div className="space-y-4">
             {reviews.length === 0 ? (
               <Card className="p-6 bg-white shadow-md">
@@ -169,7 +304,10 @@ const ProductDetails = () => {
               </Card>
             ) : (
               reviews.map((review) => (
-                <Card key={review.id} className="p-5 bg-white shadow-md hover:shadow-lg transition-shadow">
+                <Card
+                  key={review.id}
+                  className="p-5 bg-white shadow-md hover:shadow-lg transition-shadow"
+                >
                   <div className="flex items-start gap-3">
                     <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                     <div className="flex-1">

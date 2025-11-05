@@ -37,7 +37,7 @@ public class UsuarioDTO {
     }
 
     public String getApelido() {
-        return apelido;
+           return apelido;
     }
 
     public void setApelido(String apelido) {

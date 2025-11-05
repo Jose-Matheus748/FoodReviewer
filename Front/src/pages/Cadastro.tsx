@@ -15,6 +15,7 @@ export default function Cadastro() {
   const { login } = useAuth(); // Uso do hook de autenticação
 
 
+  //Tratando envio do formulario de cadastro
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
