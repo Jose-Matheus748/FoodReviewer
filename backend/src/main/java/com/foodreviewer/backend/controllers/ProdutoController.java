@@ -93,4 +93,20 @@ public class ProdutoController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/{id}/imagem")
+    public ResponseEntity<byte[]> getImagem(@PathVariable Long id) {
+        Produto produto = produtoService.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+
+        if (produto.getImagem() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", "image/jpeg") // troca pra "image/png" se for PNG
+                .body(produto.getImagem());
+    }
+
 }
