@@ -35,21 +35,17 @@ public class Produto {
     @Column (columnDefinition = "TEXT")
     private String marca;
 
-    @NotBlank(message = "O preço não pode estar em branco")
+    @NotNull
     @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal preco;
 
-    @NotBlank(message = "O tipo do produto não pode estar em branco")
-    @Column(nullable = false)
+    @Column(nullable = true) //tipo pode ser null
     private String tipo;
-    /*@Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoProduto tipo; // //deletar isso aqui
-    //private String tipo; // ENUM: SOLIDO, LIQUIDO, PÓ*/
-    @NotBlank(message = "O peso não pode estar em branco")
+
+
     @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
-    @Column(nullable = false, precision = 10,scale = 2)
+    @Column(nullable = true, precision = 10,scale = 2)
     private BigDecimal pesoGramas;
 
     private BigDecimal densidade;
@@ -63,6 +59,10 @@ public class Produto {
 
     @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL)
     private TabelaNutricional tabelaNutricional;
+
+    @Lob
+    @Column(name = "imagem")
+    private byte[] imagem;
 
     @ElementCollection
     private List<String> ingredientes; //add marca e ingrediente ao construtor
@@ -84,6 +84,7 @@ public class Produto {
         this.densidade = densidade;
         //this.dataCadastro = dataCadastro; tirei o dataCadastro daqui e dos argumentos, ele ta 100% cuidado pelo hibernate
         this.tabelaNutricional = tabelaNutricional;
+
     }
 
     public String getNome() {
@@ -164,6 +165,12 @@ public class Produto {
 
     public void setTabelaNutricional(TabelaNutricional tabelaNutricional) {
         this.tabelaNutricional = tabelaNutricional;
+    }
+
+    public byte[] getImagem() {        return imagem;    }
+
+    public void setImagem(byte[] imagem) {
+        this.imagem = imagem;
     }
 
     public List<String> getIngredientes() {
