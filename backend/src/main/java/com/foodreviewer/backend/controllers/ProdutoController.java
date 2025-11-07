@@ -94,6 +94,12 @@ public class ProdutoController {
         }
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Produto>> buscarPorNome(@RequestParam String nome){
+        List<Produto> produtos = produtoService.buscarPorNome(nome);
+        return ResponseEntity.ok(produtos);
+    }
+
     @GetMapping("/{id}/imagem")
     public ResponseEntity<byte[]> getImagem(@PathVariable Long id) {
         Produto produto = produtoService.findById(id)
