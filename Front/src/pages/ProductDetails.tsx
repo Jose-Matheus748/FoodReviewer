@@ -160,9 +160,12 @@ const ProductDetails = () => {
             {/* Imagem do Produto */}
             <div className="flex items-center justify-center bg-[#d4d4d4] rounded-lg p-4">
               <img
-                src={"/placeholder.svg"}
+                src={`${API_BASE_URL}/produtos/${id}/imagem`}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+                }}
                 alt={productData.nome}
-                className="max-w-full h-auto object-contain max-h-64"
+                className="max-w-full h-auto object-contain max-h-64 rounded-lg shadow-md"
               />
             </div>
 
