@@ -5,17 +5,26 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { User, Plus, Star } from "lucide-react";
-import logo from "@/assets/logo-foodreviewer.png";
 
-// ✅ Adicionamos a constante da URL base do backend
+// ✅ URL base do backend
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-// Tipos auxiliares
+// Interfaces de tipos
 interface Review {
   id: number;
   userName: string;
   rating: number;
   comment: string;
+}
+
+interface BackendReview {
+  id: number;
+  comentario?: string;
+  nota: number;
+  usuario?: {
+    id: number;
+    nome: string;
+  };
 }
 
 interface NutritionalInfo {
@@ -26,7 +35,7 @@ interface NutritionalInfo {
 
 interface ProductData {
   id: number;
-  nome: string; // ✅ alterado de 'name' para 'nome' (igual ao backend)
+  nome: string;
   descricao: string;
   marca: string;
   preco: number;
@@ -41,8 +50,8 @@ interface ProductData {
     calorias?: number;
     carboidratos?: number;
     fibras?: number;
-    gorduras_saturadas?: number;
-    gorduras_totais?: number;
+    gordurasSaturadas?: number;
+    gordurasTotais?: number;
     outros?: number;
     proteinas?: number;
     sodio?: number;
@@ -52,34 +61,38 @@ interface ProductData {
 
 // Componente principal
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
-  // Estados principais
   const [productData, setProductData] = useState<ProductData | null>(null);
-  const [nutritionalInfo, setNutritionalInfo] = useState<NutritionalInfo[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ useEffect para buscar dados do produto pelo ID
+  // Função auxiliar para renderizar estrelas
+  const renderStars = (rating: number) => (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-6 h-6 ${
+            star <= Math.round(rating)
+              ? "fill-accent text-accent"
+              : "fill-gray-300 text-gray-300"
+          }`}
+        />
+      ))}
+    </div>
+  );
+
+  // useEffect: busca produto e avaliações
   useEffect(() => {
     if (!id) return;
 
-    const fetchProductData = async () => {
-      setLoading(true);
-      setError(null);
-
+    const fetchProduct = async () => {
       try {
-        // ✅ Corrigido: usamos a URL base do backend (porta 8080)
-        const response = await fetch(`/api/produtos/${id}`);
-
-        if (!response.ok) {
-          throw new Error(`Erro ao buscar produto: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // ✅ Atualizado: agora mapeia os nomes reais da entidade Produto
+        const res = await fetch(`${API_BASE_URL}/produtos/${id}`);
+        if (!res.ok) throw new Error("Erro ao buscar produto");
+        const data = await res.json();
         setProductData({
           id: data.id,
           nome: data.nome,
@@ -93,35 +106,38 @@ const ProductDetails = () => {
           tabelaNutricional: data.tabelaNutricional || {},
           ingredientes: data.ingredientes || [],
         });
-
-        if (data.nutritionalInfo) setNutritionalInfo(data.nutritionalInfo);
-        if (data.reviews) setReviews(data.reviews);
       } catch (err) {
-        console.error("Erro ao buscar produto:", err);
-        setError("Não foi possível carregar os dados do produto.");
+        console.error(err);
+        setError("Não foi possível carregar o produto.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProductData();
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/reviews/produto/${id}`);
+        if (res.ok) {
+          const reviewsData: BackendReview[] = await res.json();
+          setReviews(
+            reviewsData.map((r) => ({
+              id: r.id,
+              userName: r.usuario?.nome || "Usuário Anônimo",
+              rating: r.nota / 2,
+              comment: r.comentario || "",
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Erro ao buscar avaliações:", err);
+      }
+    };
+
+    fetchProduct();
+    fetchReviews();
   }, [id]);
 
-  // Função auxiliar: renderizar estrelas de avaliação
-  const renderStars = (rating: number) => (
-    <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          className={`w-6 h-6 ${
-            star <= rating ? "fill-accent text-accent" : "fill-gray-400 text-gray-400"
-          }`}
-        />
-      ))}
-    </div>
-  );
-
-  // Renderização condicional
+  // Condições de carregamento e erro
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
@@ -152,12 +168,11 @@ const ProductDetails = () => {
       <DecorativeBlobs />
       <Header />
 
-      {/* Conteúdo principal */}
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Seção do produto */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Imagem do Produto */}
+            {/* Imagem */}
             <div className="flex items-center justify-center bg-[#d4d4d4] rounded-lg p-4">
               <img
                 src={`${API_BASE_URL}/produtos/${id}/imagem`}
@@ -169,13 +184,12 @@ const ProductDetails = () => {
               />
             </div>
 
-            {/* Informações do Produto */}
+            {/* Informações */}
             <div className="md:col-span-2 space-y-4">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                 {productData.nome}
               </h2>
 
-              {/* Descrição */}
               {productData.descricao && (
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-2">Descrição:</h3>
@@ -185,64 +199,46 @@ const ProductDetails = () => {
                 </div>
               )}
 
-              {/* Marca */}
               {productData.marca && (
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-gray-700">
                   <strong>Marca:</strong> {productData.marca}
                 </p>
               )}
 
-              {/* Tipo */}
               {productData.tipo && (
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-gray-700">
                   <strong>Tipo:</strong> {productData.tipo}
                 </p>
               )}
 
-              {/* Preço */}
               {productData.preco && (
-                <p className="text-sm text-gray-700 leading-relaxed">
+                <p className="text-sm text-gray-700">
                   <strong>Preço:</strong> R$ {productData.preco}
                 </p>
               )}
 
-              {/* Peso e Densidade */}
               {(productData.pesoGramas || productData.densidade) && (
                 <div className="flex flex-col md:flex-row gap-4">
                   {productData.pesoGramas && (
-                    <p className="text-sm text-gray-700 leading-relaxed">
+                    <p className="text-sm text-gray-700">
                       <strong>Peso:</strong> {productData.pesoGramas} g
                     </p>
                   )}
                   {productData.densidade && (
-                    <p className="text-sm text-gray-700 leading-relaxed">
+                    <p className="text-sm text-gray-700">
                       <strong>Densidade:</strong> {productData.densidade}
                     </p>
                   )}
                 </div>
               )}
 
-              
               {/* Avaliação média */}
               <div className="pt-2 flex flex-col items-start gap-2">
-                {/* Se tiver avaliações */}
                 {productData.averageRating && productData.averageRating > 0 ? (
                   <>
-                    {/* Estrelas preenchidas conforme média */}
-                    <div className="flex justify-start gap-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`w-10 h-10 md:w-12 md:h-12 transition-colors ${
-                            star <= Math.round(productData.averageRating)
-                              ? "fill-accent text-accent"
-                              : "fill-transparent text-accent/40"
-                          }`}
-                        />
-                      ))}
-                    </div>
+                    {renderStars(productData.averageRating)}
                     <p className="text-sm text-gray-700 font-medium">
-                      Média de avaliações:{" "}
+                      Média:{" "}
                       <span className="text-accent font-semibold">
                         {productData.averageRating.toFixed(1)}
                       </span>{" "}
@@ -251,16 +247,8 @@ const ProductDetails = () => {
                   </>
                 ) : (
                   <>
-                    {/* Estrelas vazias (produto ainda sem avaliações) */}
-                    <div className="flex justify-start gap-3">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className="w-10 h-10 md:w-12 md:h-12 fill-transparent text-accent/40"
-                        />
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-500 italic mt-1">
+                    {renderStars(0)}
+                    <p className="text-sm text-gray-500 italic">
                       Este produto ainda não possui avaliações.
                     </p>
                   </>
@@ -273,27 +261,25 @@ const ProductDetails = () => {
         {/* Tabela Nutricional */}
         {productData.tabelaNutricional && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Tabela Nutricional
-            </h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Tabela Nutricional</h3>
             <ul className="text-sm text-gray-700 space-y-2">
               <li>Calorias: {productData.tabelaNutricional.calorias}</li>
               <li>Proteínas: {productData.tabelaNutricional.proteinas} g</li>
               <li>Carboidratos: {productData.tabelaNutricional.carboidratos} g</li>
-              <li>Gorduras saturadas: {productData.tabelaNutricional.gorduras_saturadas} g</li>
-              <li>Gorduras totais: {productData.tabelaNutricional.gorduras_totais} g</li>
+              <li>Gorduras saturadas: {productData.tabelaNutricional.gordurasSaturadas} g</li>
+              <li>Gorduras totais: {productData.tabelaNutricional.gordurasTotais} g</li>
               <li>Fibras: {productData.tabelaNutricional.fibras} g</li>
-              <li>Açucares: {productData.tabelaNutricional.acucares} g</li>
+              <li>Açúcares: {productData.tabelaNutricional.acucares} g</li>
               <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
             </ul>
           </div>
         )}
 
-        {/*Lista de ingredientes*/}
+        {/* Ingredientes */}
         {productData.ingredientes && productData.ingredientes.length > 0 && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Ingredientes</h3>
-            <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
+            <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
               {productData.ingredientes.map((ing) => (
                 <li key={ing.id}>{ing.nome}</li>
               ))}
@@ -301,7 +287,7 @@ const ProductDetails = () => {
           </div>
         )}
 
-        {/* Seção de Avaliações */}
+        {/* Avaliações */}
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <h2
@@ -339,26 +325,13 @@ const ProductDetails = () => {
                   <div className="flex items-start gap-3">
                     <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-semibold text-primary text-lg">
-                          {review.userName}:
-                        </h4>
-                      </div>
+                      <h4 className="font-semibold text-primary text-lg mb-1">
+                        {review.userName}:
+                      </h4>
                       <p className="text-gray-700 mb-3 leading-relaxed whitespace-pre-line">
                         {review.comment}
                       </p>
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-5 h-5 ${
-                              star <= review.rating
-                                ? "fill-accent text-accent"
-                                : "fill-gray-300 text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
+                      {renderStars(review.rating)}
                     </div>
                   </div>
                 </Card>

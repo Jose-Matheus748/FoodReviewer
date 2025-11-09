@@ -20,8 +20,14 @@ public class ProdutoService {
         return produtoRepository.findAll();
     }
 
-    public Optional<Produto> findById(Long id){
-        return produtoRepository.findById(id);
+    public Optional<Produto> findById(Long id) {
+        Optional<Produto> produtoOpt = produtoRepository.findById(id);
+        produtoOpt.ifPresent(produto -> {
+            // força o carregamento das coleções lazy
+            if (produto.getReviews() != null) produto.getReviews().size();
+            if (produto.getIngredientes() != null) produto.getIngredientes().size();
+        });
+        return produtoOpt;
     }
 
     public void deleteProduto(Long id){

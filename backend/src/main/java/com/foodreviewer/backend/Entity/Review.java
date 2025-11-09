@@ -1,8 +1,8 @@
 package com.foodreviewer.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -10,7 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Review")
+@Table(name = "review")
 @Getter
 @Setter
 public class Review {
@@ -22,81 +22,28 @@ public class Review {
     @Column(columnDefinition = "TEXT")
     private String comentario;
 
-    @NotBlank(message = "Nota não pode estar vazia")
     @DecimalMin(value = "1")
-    private int nota; //vale de 0 a 5,incremental de 0,5 pontos, ou seja, um int de 0 a 10
+    private int nota; // de 1 a 10 (representando 0.5 incrementos)
 
     @ManyToOne
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     @ManyToOne
+    @JoinColumn(name = "produto_id", nullable = false)
+    @JsonBackReference
     private Produto produto;
 
     @CreationTimestamp
     @Column(name = "data_criacao", updatable = false)
     private LocalDateTime dataCriacao;
 
-    public Review(){
+    public Review() {}
 
-    }
-
-    public Review(Long id, String comentario, int nota, Usuario usuario, Produto produto) {
-        this.id = id;
-        this.comentario = comentario;
-        this.nota = nota;
-        this.usuario = usuario;
-        this.produto = produto;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getComentario() {
-        return comentario;
-    }
-
-    public void setComentario(String comentario) {
-        this.comentario = comentario;
-    }
-
-    public int getNota() {
-        return nota;
-    }
-
-    public void setNota(int nota) {
-        this.nota = nota;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-    public Produto getProduto() {
-        return produto;
-    }
-
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
-
-
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
-
-
-    // Getters e setters...
+    public Review(String comentario, int nota, Usuario usuario, Produto produto) {
+            this.comentario = comentario;
+            this.nota = nota;
+            this.usuario = usuario;
+            this.produto = produto;
+        }
 }

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
@@ -69,8 +70,16 @@ public class Produto {
     private List<String> alergenicos;
 
     @Lob
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "imagem")
     private byte[] imagem;
+
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Review> reviews = new ArrayList<>();
+
+    @Column(name = "average_rating", precision = 3, scale = 2)
+    private BigDecimal averageRating = BigDecimal.ZERO;
 
     public Produto() {}
 
