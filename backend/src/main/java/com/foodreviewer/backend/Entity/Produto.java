@@ -1,5 +1,6 @@
 package com.foodreviewer.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
@@ -58,6 +59,7 @@ public class Produto {
     private Timestamp dataCadastro;*/
 
     @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private TabelaNutricional tabelaNutricional;
 
     @Lob
