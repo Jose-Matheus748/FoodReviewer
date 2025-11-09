@@ -1,9 +1,11 @@
 package com.foodreviewer.backend.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.foodreviewer.backend.Entity.Ingrediente;
 import com.foodreviewer.backend.Entity.Produto;
 import com.foodreviewer.backend.Entity.TabelaNutricional;
 import com.foodreviewer.backend.services.ProdutoService;
+import com.foodreviewer.backend.services.IngredienteService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,13 +22,15 @@ import java.util.Optional;
 public class ProdutoController {
 
     private final ProdutoService produtoService;
-    private final ObjectMapper objectMapper = new ObjectMapper(); // usado para converter JSON da tabela nutricional
+    private final IngredienteService ingredienteService;
+    private final ObjectMapper objectMapper = new ObjectMapper(); // usado para converter JSON
 
-    public ProdutoController(ProdutoService produtoService) {
+    public ProdutoController(ProdutoService produtoService, IngredienteService ingredienteService) {
         this.produtoService = produtoService;
+        this.ingredienteService = ingredienteService;
     }
 
-    // ✅ OPÇÃO 1 — Criação com imagem + JSON (multipart/form-data)
+    // OPÇÃO 1 — Criação com imagem + JSON (multipart/form-data)
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<Produto> criarProdutoComImagem(
             @RequestParam("nome") String nome,
@@ -36,7 +41,8 @@ public class ProdutoController {
             @RequestParam(value = "pesoGramas", required = false) BigDecimal pesoGramas,
             @RequestParam(value = "densidade", required = false) BigDecimal densidade,
             @RequestParam(value = "imagem", required = false) MultipartFile imagem,
-            @RequestParam(value = "ingredientes", required = false) List<String> ingredientes,
+            // ingredientes como JSON string: ex: '[{"nome":"Aveia"},{"nome":"Mel"}]'
+            @RequestParam(value = "ingredientes", required = false) String ingredientesJson,
             @RequestParam(value = "alergenicos", required = false) List<String> alergenicos,
             @RequestParam(value = "tabelaNutricional", required = false) String tabelaNutricionalJson
     ) {
@@ -49,10 +55,23 @@ public class ProdutoController {
             produto.setTipo(tipo);
             produto.setPesoGramas(pesoGramas);
             produto.setDensidade(densidade);
-            produto.setIngredientes(ingredientes);
             produto.setAlergenicos(alergenicos);
 
-            // ✅ Lê o JSON da tabela nutricional e converte para objeto Java
+            // Ingredientes JSON -> lista de Ingrediente (persist ou reuse)
+            if (ingredientesJson != null && !ingredientesJson.isEmpty()) {
+                Ingrediente[] ingredientesArray = objectMapper.readValue(ingredientesJson, Ingrediente[].class);
+                List<Ingrediente> ingredientesPersistidos = new ArrayList<>();
+
+                for (Ingrediente ingr : ingredientesArray) {
+                    Optional<Ingrediente> existente = ingredienteService.findByNome(ingr.getNome());
+                    Ingrediente toAdd = existente.orElseGet(() -> ingredienteService.saveIngrediente(ingr));
+                    ingredientesPersistidos.add(toAdd);
+                }
+
+                produto.setIngredientes(ingredientesPersistidos);
+            }
+
+            // Tabela nutricional JSON -> object
             if (tabelaNutricionalJson != null && !tabelaNutricionalJson.isEmpty()) {
                 TabelaNutricional tabelaNutricional =
                         objectMapper.readValue(tabelaNutricionalJson, TabelaNutricional.class);
@@ -60,10 +79,9 @@ public class ProdutoController {
                 produto.setTabelaNutricional(tabelaNutricional);
             }
 
-            // ✅ Salva imagem (se houver)
+            // imagem
             if (imagem != null && !imagem.isEmpty()) {
                 produto.setImagem(imagem.getBytes());
-                System.out.println("Imagem recebida: " + imagem.getOriginalFilename());
             }
 
             Produto salvo = produtoService.saveProduto(produto);
@@ -75,15 +93,24 @@ public class ProdutoController {
         }
     }
 
-    // ✅ OPÇÃO 2 — Criação via JSON puro (sem imagem)
+    // OPÇÃO 2 — Criação via JSON puro (sem imagem)
     @PostMapping(value = "/json", consumes = "application/json")
     public ResponseEntity<Produto> criarProdutoViaJson(@Valid @RequestBody Produto produto) {
         try {
-            // ✅ Faz o vínculo bidirecional antes de salvar
             if (produto.getTabelaNutricional() != null) {
                 produto.getTabelaNutricional().setProduto(produto);
             }
 
+            // persiste/recupera ingredientes para evitar duplicados
+            if (produto.getIngredientes() != null && !produto.getIngredientes().isEmpty()) {
+                List<Ingrediente> persistidos = new ArrayList<>();
+                for (Ingrediente ingr : produto.getIngredientes()) {
+                    Optional<Ingrediente> existente = ingredienteService.findByNome(ingr.getNome());
+                    persistidos.add(existente.orElseGet(() -> ingredienteService.saveIngrediente(ingr)));
+                }
+                produto.setIngredientes(persistidos);
+            }
+
             Produto salvo = produtoService.saveProduto(produto);
             return ResponseEntity.ok(salvo);
 
@@ -93,17 +120,12 @@ public class ProdutoController {
         }
     }
 
-    // ============================================================
-    // ✅ Buscar todos os produtos
-    // ============================================================
+    // endpoints restantes...
     @GetMapping
     public ResponseEntity<List<Produto>> findAll() {
         return ResponseEntity.ok(produtoService.findAll());
     }
 
-    // ============================================================
-    // ✅ Buscar produto por ID
-    // ============================================================
     @GetMapping("/{id}")
     public ResponseEntity<Produto> findById(@PathVariable Long id) {
         return produtoService.findById(id)
@@ -111,9 +133,6 @@ public class ProdutoController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // ============================================================
-    // ✅ Atualizar produto existente
-    // ============================================================
     @PutMapping("/{id}")
     public ResponseEntity<Produto> updateProduto(
             @PathVariable Long id,
@@ -128,9 +147,6 @@ public class ProdutoController {
         }
     }
 
-    // ============================================================
-    // ✅ Deletar produto
-    // ============================================================
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduto(@PathVariable Long id) {
         try {
@@ -141,18 +157,12 @@ public class ProdutoController {
         }
     }
 
-    // ============================================================
-    // ✅ Buscar por nome (ex: /produtos/search?nome=biscoito)
-    // ============================================================
     @GetMapping("/search")
     public ResponseEntity<List<Produto>> buscarPorNome(@RequestParam String nome) {
         List<Produto> produtos = produtoService.buscarPorNome(nome);
         return ResponseEntity.ok(produtos);
     }
 
-    // ============================================================
-    // ✅ Buscar imagem de um produto
-    // ============================================================
     @GetMapping("/{id}/imagem")
     public ResponseEntity<byte[]> getImagem(@PathVariable Long id) {
         Produto produto = produtoService.findById(id)
@@ -164,7 +174,7 @@ public class ProdutoController {
 
         return ResponseEntity
                 .ok()
-                .header("Content-Type", "image/jpeg") // altere se usar PNG
+                .header("Content-Type", "image/jpeg")
                 .body(produto.getImagem());
     }
 }

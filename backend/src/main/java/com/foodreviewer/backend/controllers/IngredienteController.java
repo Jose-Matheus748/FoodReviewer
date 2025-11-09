@@ -16,46 +16,32 @@ public class IngredienteController {
 
     private final IngredienteService ingredienteService;
 
-    public IngredienteController(IngredienteService ingredienteService){
+    public IngredienteController(IngredienteService ingredienteService) {
         this.ingredienteService = ingredienteService;
     }
 
-    @PostMapping
-    public ResponseEntity<Ingrediente> criarIngrediente(@Valid @RequestBody Ingrediente ingrediente){
-        return ResponseEntity.ok(ingredienteService.saveIngrediente(ingrediente));
-    }
-
     @GetMapping
-    public ResponseEntity<List<Ingrediente>> findAll(){
+    public ResponseEntity<List<Ingrediente>> listar() {
         return ResponseEntity.ok(ingredienteService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Ingrediente>> findById(Long id){
-        try{
+    public ResponseEntity<Optional<Ingrediente>> buscarPorId(@PathVariable Long id) {
+        try {
             return ResponseEntity.ok(ingredienteService.findById(id));
-        }catch (EntityNotFoundException e){
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @PutMapping
-    public ResponseEntity<Optional<Ingrediente>> updateIngrediente(@PathVariable Long id, @Valid @RequestBody Ingrediente ingrediente){
-        try{
-            return ResponseEntity.ok(ingredienteService.updateIngrediente(ingrediente, id));
-        }catch (EntityNotFoundException e){
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping
+    public ResponseEntity<Ingrediente> criarIngrediente(@Valid @RequestBody Ingrediente ingrediente) {
+        return ResponseEntity.ok(ingredienteService.saveIngrediente(ingrediente));
     }
 
-    @DeleteMapping
-    public ResponseEntity<Optional<Ingrediente>> deleteIngrediente(@PathVariable Long id){
-        try{
-            ingredienteService.deleteIngrediente(id);
-            return ResponseEntity.noContent().build();
-        }catch (EntityNotFoundException e){
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluirIngrediente(@PathVariable Long id) {
+        ingredienteService.deleteIngrediente(id);
+        return ResponseEntity.noContent().build();
     }
-
 }

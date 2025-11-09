@@ -34,6 +34,7 @@ interface ProductData {
   pesoGramas: number;
   densidade: number;
   averageRating?: number;
+  ingredientes?: { id: number; nome: string }[];
   tabelaNutricional?: {
     id?: number;
     acucares?: number;
@@ -90,6 +91,7 @@ const ProductDetails = () => {
           densidade: data.densidade,
           averageRating: data.averageRating || 0,
           tabelaNutricional: data.tabelaNutricional || {},
+          ingredientes: data.ingredientes || [],
         });
 
         if (data.nutritionalInfo) setNutritionalInfo(data.nutritionalInfo);
@@ -280,6 +282,18 @@ const ProductDetails = () => {
               <li>Fibras: {productData.tabelaNutricional.fibras} g</li>
               <li>Açucares: {productData.tabelaNutricional.acucares} g</li>
               <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
+            </ul>
+          </div>
+        )}
+
+        {/*Lista de ingredientes*/}
+        {productData.ingredientes && productData.ingredientes.length > 0 && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Ingredientes</h3>
+            <ul className="text-sm text-gray-700 space-y-2 list-disc list-inside">
+              {productData.ingredientes.map((ing) => (
+                <li key={ing.id}>{ing.nome}</li>
+              ))}
             </ul>
           </div>
         )}

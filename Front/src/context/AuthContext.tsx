@@ -48,6 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 };
 
 // Hook personalizado para usar o contexto
+//ta marcado de amarelo por causa do eslint 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
