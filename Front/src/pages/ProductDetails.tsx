@@ -35,10 +35,17 @@ interface ProductData {
   densidade: number;
   averageRating?: number;
   tabelaNutricional?: {
+    id?: number;
+    acucares?: number;
     calorias?: number;
-    proteinas?: number;
     carboidratos?: number;
-    gorduras?: number;
+    fibras?: number;
+    gorduras_saturadas?: number;
+    gorduras_totais?: number;
+    outros?: number;
+    proteinas?: number;
+    sodio?: number;
+    produto_id?: number;
   };
 }
 
@@ -268,7 +275,11 @@ const ProductDetails = () => {
               <li>Calorias: {productData.tabelaNutricional.calorias}</li>
               <li>Proteínas: {productData.tabelaNutricional.proteinas} g</li>
               <li>Carboidratos: {productData.tabelaNutricional.carboidratos} g</li>
-              <li>Gorduras: {productData.tabelaNutricional.gorduras} g</li>
+              <li>Gorduras saturadas: {productData.tabelaNutricional.gorduras_saturadas} g</li>
+              <li>Gorduras totais: {productData.tabelaNutricional.gorduras_totais} g</li>
+              <li>Fibras: {productData.tabelaNutricional.fibras} g</li>
+              <li>Açucares: {productData.tabelaNutricional.acucares} g</li>
+              <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
             </ul>
           </div>
         )}

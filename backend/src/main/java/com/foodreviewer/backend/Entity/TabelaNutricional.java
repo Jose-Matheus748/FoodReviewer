@@ -1,8 +1,10 @@
 package com.foodreviewer.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -17,50 +19,51 @@ public class TabelaNutricional {
 
     @OneToOne
     @JoinColumn(name = "produto_id", unique = true)
+    @JsonBackReference
     private Produto produto;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal calorias;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal proteinas;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal carboidratos;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal gordurasTotais;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal gordurasSaturadas;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal fibras;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal sodio;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal acucares;
 
-    @NotBlank(message = "Valor não pode estar em branco")
-    @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
+    @NotNull
+    @DecimalMin(value = "0.00", message = "Valor não pode ser negativo")
     @Column(nullable = false, precision = 10,scale = 2)
     private BigDecimal outros;
 

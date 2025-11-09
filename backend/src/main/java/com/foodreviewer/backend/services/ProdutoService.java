@@ -28,6 +28,10 @@ public class ProdutoService {
         produtoRepository.deleteById(id);
     }
 
+    public List<Produto> buscarPorNome(String nome){
+        return produtoRepository.findByNomeContainingIgnoreCase(nome);
+    }
+
     public Optional<Produto> updateProduto(Produto updateProduto, Long id){
         return Optional.of(produtoRepository.findById(id).map(produto -> {
             produto.setNome(updateProduto.getNome());
