@@ -1,7 +1,10 @@
 package com.foodreviewer.backend.controllers;
 
 import com.foodreviewer.backend.Entity.Review;
+import com.foodreviewer.backend.Entity.Produto;
 import com.foodreviewer.backend.services.ReviewService;
+import com.foodreviewer.backend.services.ProdutoService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +22,23 @@ record ReviewDTO(Long id, String comentario, int nota, String usuarioNome) {
     }
 }
 
+// DTO de entrada para criação de review
+record ReviewRequest(String comentario, int nota, Long usuarioId) {}
+
 @RestController
 @RequestMapping("/reviews")
-@CrossOrigin(origins = "http://localhost:3000") // ✅ libera acesso do front local
+@CrossOrigin(origins = "http://localhost:3000") // ✅ necessário para o frontend local
 public class ReviewController {
 
     private final ReviewService reviewService;
+    private final ProdutoService produtoService; // ✅ adicionamos o ProdutoService
 
-    public ReviewController(ReviewService reviewService) {
+    public ReviewController(ReviewService reviewService, ProdutoService produtoService) {
         this.reviewService = reviewService;
+        this.produtoService = produtoService;
     }
 
-    // ✅ Endpoint que o front consome
+    // ✅ GET — Buscar todas as avaliações de um produto específico
     @GetMapping("/produto/{produtoId}")
     public ResponseEntity<List<ReviewDTO>> getReviewsByProduto(@PathVariable Long produtoId) {
         try {
@@ -46,13 +54,34 @@ public class ReviewController {
         }
     }
 
-    // ✅ Criação de nova review
-    @PostMapping
-    public ResponseEntity<ReviewDTO> createReview(@RequestBody Review review) {
+    // ✅ POST — Criar uma nova review associada a um produto
+    @PostMapping("/produto/{produtoId}")
+    public ResponseEntity<ReviewDTO> criarReview(
+            @PathVariable Long produtoId,
+            @RequestBody ReviewRequest request
+    ) {
         try {
+            // Buscar o produto alvo
+            Produto produto = produtoService.findById(produtoId)
+                    .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+
+            // Criar e popular a entidade Review
+            Review review = new Review();
+            review.setProduto(produto);
+            review.setNota(request.nota());
+            review.setComentario(request.comentario());
+
+            // ⚙️ Aqui futuramente você pode associar o usuário autenticado
+            // review.setUsuario(usuarioRepository.findById(request.usuarioId()).orElse(null));
+
+            // Salvar a avaliação
             Review saved = reviewService.save(review);
-            ReviewDTO dto = ReviewDTO.fromEntity(saved);
-            return ResponseEntity.ok(dto);
+
+            // Retornar DTO para o front
+            return ResponseEntity.ok(ReviewDTO.fromEntity(saved));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();

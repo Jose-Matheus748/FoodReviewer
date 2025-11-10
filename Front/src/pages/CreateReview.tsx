@@ -5,26 +5,59 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import logo from "@/assets/logo-foodreviewer.png";
 
+// ✅ URL base do backend
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
 const CreateReview = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); // id do produto
   const [rating, setRating] = useState(0);
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Função de clique nas estrelas
   const handleStarClick = (starIndex: number) => {
-    // interação para se clicar na mesma estrela já selecionada, zera a avaliação
-    if (rating === starIndex) {
-      setRating(0);
-    } else {
-      setRating(starIndex);
-    }
+    setRating(rating === starIndex ? 0 : starIndex);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ✅ Envio da avaliação para o backend
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Futuramente alterar para salvar no banco de dados
-    // Retornado para a pagina do produto
-    navigate(`/produto/${id}`);
+    setLoading(true);
+    setError(null);
+
+    if (!id) {
+      setError("ID do produto não encontrado.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // Corpo da requisição
+      const reviewData = {
+        comentario: description || "",
+        nota: rating * 2, // pois backend usa int de 0 a 10
+      };
+
+      const response = await fetch(`${API_BASE_URL}/reviews/produto/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao enviar avaliação");
+      }
+
+      // Volta à página do produto após sucesso
+      navigate(`/produto/${id}`);
+    } catch (err) {
+      console.error("Erro ao postar avaliação:", err);
+      setError("Não foi possível enviar a avaliação. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,10 +70,15 @@ const CreateReview = () => {
             onClick={() => navigate("/")}
             className="hover:opacity-80 transition-opacity"
           >
-            <img src={logo} alt="FoodReviewer Logo" className="w-24 h-24 object-contain cursor-pointer" />
+            <img
+              src={logo}
+              alt="FoodReviewer Logo"
+              className="w-24 h-24 object-contain cursor-pointer"
+            />
           </button>
         </div>
 
+        {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Estrelas */}
           <div className="flex justify-center gap-4">
@@ -65,7 +103,7 @@ const CreateReview = () => {
           {/* Campo de Descrição */}
           <div className="space-y-3">
             <label className="text-xl md:text-2xl font-semibold text-accent block">
-              Adicione uma descrição:(opcional)
+              Adicione uma descrição (opcional):
             </label>
             <Textarea
               value={description}
@@ -75,13 +113,17 @@ const CreateReview = () => {
             />
           </div>
 
+          {/* Erro */}
+          {error && <p className="text-center text-red-400 font-medium">{error}</p>}
+
           {/* Botão de concluir */}
           <div className="flex justify-center pt-4">
             <Button
               type="submit"
-              className="px-12 py-6 text-xl md:text-2xl font-bold bg-transparent border-4 border-accent text-accent hover:bg-accent hover:text-primary rounded-full transition-all"
+              disabled={loading || rating === 0}
+              className="px-12 py-6 text-xl md:text-2xl font-bold bg-transparent border-4 border-accent text-accent hover:bg-accent hover:text-primary rounded-full transition-all disabled:opacity-50"
             >
-              Postar avaliação
+              {loading ? "Enviando..." : "Postar avaliação"}
             </Button>
           </div>
         </form>
