@@ -3,6 +3,8 @@ import com.foodreviewer.backend.Entity.Produto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.foodreviewer.backend.repositories.ProdutoRepository;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +22,7 @@ public class ProdutoService {
         return produtoRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<Produto> findById(Long id) {
         Optional<Produto> produtoOpt = produtoRepository.findById(id);
         produtoOpt.ifPresent(produto -> {
@@ -34,6 +37,7 @@ public class ProdutoService {
         produtoRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<Produto> buscarPorNome(String nome){
         return produtoRepository.findByNomeContainingIgnoreCase(nome);
     }

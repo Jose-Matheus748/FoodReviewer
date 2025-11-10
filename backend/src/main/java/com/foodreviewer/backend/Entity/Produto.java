@@ -70,8 +70,9 @@ public class Produto {
     private List<String> alergenicos;
 
     @Lob
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "imagem")
+    @Basic(fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private byte[] imagem;
 
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
