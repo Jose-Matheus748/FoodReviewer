@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom"; // useNavigate adicionado
-import { useAuth } from '../context/AuthContext'; // CORRIGIDO
+import { useAuth } from '../context/AuthContext';
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 
 export default function Login() {
-  const navigate = useNavigate(); // Uso do hook de navegação
+  const navigate = useNavigate(); // Uso do hook de navegação, pra poder navegar entre as telas
   const { login } = useAuth(); // Uso do hook de autenticação
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +36,7 @@ export default function Login() {
           email: userData.email,
         });
         console.log("Login realizado com sucesso!");
-        alert("Login realizado com sucesso!");
+        //alert("Login realizado com sucesso!"); comentando o alert pra gente adicionar algo melhor dps
         navigate("/"); // Redireciona para a tela inicial
       } else {
         const errorData = await response.json();

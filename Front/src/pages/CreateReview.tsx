@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import logo from "@/assets/logo-foodreviewer.png";
 
-// ✅ URL base do backend
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 const CreateReview = () => {
@@ -16,12 +15,12 @@ const CreateReview = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Função de clique nas estrelas
+  //essa é a função para clicar nas estrelas
   const handleStarClick = (starIndex: number) => {
     setRating(rating === starIndex ? 0 : starIndex);
   };
 
-  // ✅ Envio da avaliação para o backend
+  //esse hedleSubmit serve pra enviar as avaliações pro back 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -37,7 +36,7 @@ const CreateReview = () => {
       // Corpo da requisição
       const reviewData = {
         comentario: description || "",
-        nota: rating * 2, // pois backend usa int de 0 a 10
+        nota: rating * 2, // adaptado para o backend
       };
 
       const response = await fetch(`${API_BASE_URL}/reviews/produto/${id}`, {

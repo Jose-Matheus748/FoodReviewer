@@ -23,7 +23,7 @@ public class Review {
     private String comentario;
 
     @DecimalMin(value = "1")
-    private int nota; // de 1 a 10 (representando 0.5 incrementos)
+    private int nota; // de 1 a 10
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")

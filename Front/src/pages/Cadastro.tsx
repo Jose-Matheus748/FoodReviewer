@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
-import { useAuth } from '../context/AuthContext'; // CORRIGIDO
+import { useAuth } from '../context/AuthContext'; 
 
 export default function Cadastro() {
   const [apelido, setNome] = useState("");
@@ -46,7 +46,7 @@ export default function Cadastro() {
           email: userData.email,
         });
         console.log("Cadastro realizado com sucesso!");
-        alert("Cadastro realizado com sucesso!");
+        //alert("Cadastro realizado com sucesso!"); vou so comentar esse alert pra gente adicionar algo melhor dps
         navigate("/"); // redireciona após sucesso
       } else {
         const errorData = await response.json();

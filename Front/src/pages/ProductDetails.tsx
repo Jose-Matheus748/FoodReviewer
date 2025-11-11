@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { User, Plus, Star } from "lucide-react";
 
-// ✅ URL base do backend
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-// Interfaces de tipos
+// Interfaces de tipos definindo os dados que vao ser usados
 interface Review {
   id: number;
   userName: string;
@@ -84,11 +84,11 @@ const ProductDetails = () => {
     </div>
   );
 
-  // useEffect: busca produto e avaliações
+  // esse useEffect serve pra buscar produto e avaliações
   useEffect(() => {
     if (!id) return;
 
-    const fetchProduct = async () => {
+    const fetchProduct = async () => { //fetch pega as informações do back
       try {
         const res = await fetch(`${API_BASE_URL}/produtos/${id}`);
         if (!res.ok) throw new Error("Erro ao buscar produto");
@@ -122,8 +122,8 @@ const ProductDetails = () => {
           setReviews(
             reviewsData.map((r) => ({
               id: r.id,
-              userName: r.usuario?.nome || "Usuário Anônimo",
-              rating: r.nota / 2,
+              userName: "Usuário Anônimo", //Aqui a gente pode colocara futuramente a função de nome aleatorios
+              rating: r.nota / 2, //adaptando do backend
               comment: r.comentario || "",
             }))
           );
@@ -242,7 +242,7 @@ const ProductDetails = () => {
                       <span className="text-accent font-semibold">
                         {productData.averageRating.toFixed(1)}
                       </span>{" "}
-                      / 5
+                      / 5 
                     </p>
                   </>
                 ) : (
@@ -272,7 +272,7 @@ const ProductDetails = () => {
               <li>Açúcares: {productData.tabelaNutricional.acucares} g</li>
               <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
             </ul>
-          </div>
+          </div>//voces acham que seria melhor diminuir o tamanho desse card?
         )}
 
         {/* Ingredientes */}
@@ -326,7 +326,7 @@ const ProductDetails = () => {
                     <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                     <div className="flex-1">
                       <h4 className="font-semibold text-primary text-lg mb-1">
-                        {review.userName}:
+                        {review.userName}: {/*Sempre vai retornar "usuario anônimo" mas futuramente poedmos criar nomes aleatorios */}
                       </h4>
                       <p className="text-gray-700 mb-3 leading-relaxed whitespace-pre-line">
                         {review.comment}

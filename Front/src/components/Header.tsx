@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useAuth } from '../context/AuthContext'; // CORRIGIDO
+import { useAuth } from '../context/AuthContext'; 
 import logo from "@/assets/logo-foodreviewer.png";
 
 export const Header = () => {
@@ -31,7 +31,7 @@ export const Header = () => {
               onClick={logout}
               className="border-primary text-primary hover:bg-primary/10 font-medium shadow-md hover:shadow-lg transition-all"
             >
-              {/* Você pode adicionar um ícone de logout aqui, se tiver um */}
+              {/*depois podemos tentar colocar um icone de logout*/}
               Logout
             </Button>
           </div>
