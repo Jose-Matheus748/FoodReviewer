@@ -13,7 +13,7 @@ public record ReviewDTO(
                 review.getId(),
                 review.getComentario(),
                 review.getNota(),
-                review.getUsuario() != null ? review.getUsername() : "Usuário Anônimo"
+                review.getUsuario() != null ? review.getUsuario().getUsername() : "Usuário Anônimo"
         );
     }
 }

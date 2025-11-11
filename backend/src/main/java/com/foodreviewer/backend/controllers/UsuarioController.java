@@ -27,7 +27,7 @@ public class UsuarioController {
     // Novo endpoint de login
     @PostMapping("/login")
     public ResponseEntity<UsuarioDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return usuarioService.login(loginRequest.getEmail(), loginRequest.getSenha())
+        return usuarioService.login(loginRequest.email(), loginRequest.senha())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(401).build()); // 401 Unauthorized
     }
