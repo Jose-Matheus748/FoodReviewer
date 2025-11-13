@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router-dom"; // useNavigate adicionado
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
+import { Mail, Lock } from "lucide-react";
 
 export default function Login() {
-  const navigate = useNavigate(); // Uso do hook de navegação, pra poder navegar entre as telas
-  const { login } = useAuth(); // Uso do hook de autenticação
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,31 +17,23 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/usuarios/login", { // Novo endpoint
+      const response = await fetch("/api/usuarios/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          senha: password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }),
       });
 
       if (response.ok) {
         const userData = await response.json();
-        // Armazena o usuário no contexto
         login({
           id: userData.id,
           apelido: userData.apelido,
           email: userData.email,
         });
         console.log("Login realizado com sucesso!");
-        //alert("Login realizado com sucesso!"); comentando o alert pra gente adicionar algo melhor dps
-        navigate("/"); // Redireciona para a tela inicial
+        navigate("/");
       } else {
         const errorData = await response.json();
-        console.error("Falha no login:", errorData.message || response.statusText);
         alert("Erro ao fazer login: " + (errorData.message || response.statusText));
       }
     } catch (error) {
@@ -50,77 +43,78 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E8E8E8] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl shadow-2xl p-8 border border-primary/20">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <Link to="/" className="hover:opacity-80 transition-opacity">
-              <img 
-                src={logoFoodReviewer} 
-                alt="FoodReviewer Logo" 
-                className="w-24 h-24 object-contain cursor-pointer"
-              />
-            </Link>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#E8E8E8] to-[#d4d4d4] flex items-center justify-center py-6">
+      <div className="w-full max-w-sm bg-gradient-to-b from-primary/95 to-primary rounded-3xl shadow-2xl border border-accent/20 p-5 flex flex-col items-center justify-center relative overflow-hidden">
+        {/* Logo */}
+        <Link to="/" className="hover:opacity-80 transition-opacity mb-3">
+          <img
+            src={logoFoodReviewer}
+            alt="FoodReviewer Logo"
+            className="w-16 h-16 object-contain drop-shadow-lg"
+          />
+        </Link>
 
-          {/* Titulo */}
-          <h1 className="text-3xl font-bold text-white text-center mb-8">
-            Login
-          </h1>
+        {/* Título */}
+        <h1 className="text-2xl font-bold text-white text-center mb-4 tracking-wide">
+          Bem-vindo de volta
+        </h1>
 
-          {/* Formulario de login */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-accent font-semibold text-base">
-                Email
-              </Label>
+        {/* Formulário */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
+          {/* Email */}
+          <div className="space-y-1">
+            <Label htmlFor="email" className="text-white/90 font-semibold text-sm">
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
+                className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
                 placeholder="Digite seu email"
                 required
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-accent font-semibold text-base">
-                Senha
-              </Label>
+          {/* Senha */}
+          <div className="space-y-1">
+            <Label htmlFor="password" className="text-white/90 font-semibold text-sm">
+              Senha
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
+                className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
                 placeholder="Digite sua senha"
                 required
               />
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-transparent border-2 border-accent text-accent hover:bg-accent hover:text-primary font-bold h-12 text-base rounded-lg transition-all"
-            >
-              Entrar
-            </Button>
+          {/* Botão */}
+          <Button
+            type="submit"
+            className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.02] hover:shadow-accent/30 transition-all"
+          >
+            Entrar
+          </Button>
 
-            <div className="text-center mt-6">
-              <p className="text-white/80 text-sm">
-                Não tem uma conta?{" "}
-                <Link 
-                  to="/cadastro" 
-                  className="text-accent font-semibold hover:underline"
-                >
-                  Cadastre-se
-                </Link>
-              </p>
-            </div>
-          </form>
-        </div>
+          {/* Link de cadastro */}
+          <p className="text-center text-white/80 text-xs mt-2">
+            Ainda não tem uma conta?{" "}
+            <Link to="/cadastro" className="text-accent font-semibold hover:underline">
+              Cadastre-se
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );
