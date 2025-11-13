@@ -48,10 +48,34 @@ export default function Cadastro() {
   };
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-[#E8E8E8] to-[#d4d4d4] flex items-center justify-center py-6">
-      <div className="w-full max-w-sm bg-gradient-to-b from-primary/95 to-primary rounded-3xl shadow-2xl border border-accent/20 p-5 flex flex-col items-center justify-center relative overflow-hidden">
+  <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
+    {/*Pontos no background*/}
+    <div
+      className="absolute inset-0 opacity-30 pointer-events-none"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 2px 2px, rgba(89, 37, 179, 0.81) 1px, transparent 0)",
+        backgroundSize: "40px 40px",
+      }}
+    />
+
+    {/*Efeitos de luz suaves */}
+    <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
+    <div className="absolute bottom-0 right-0 w-[650px] h-[650px] translate-x-1/3 translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-tl from-primary/25 via-primary/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
+
+    {/*Card principal de cadastro */}
+    <div className="relative z-10 w-full max-w-sm bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl shadow-2xl border border-accent/30 p-6 flex flex-col items-center justify-center overflow-hidden backdrop-blur-sm">
+      {/* Brilho interno*/}
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 rounded-3xl pointer-events-none" />
+
+      {/* Conteúdo */}
+      <div className="relative z-10 w-full flex flex-col items-center">
         {/* Logo */}
-        <Link to="/" className="hover:opacity-80 transition-opacity mb-3">
+        <Link to="/" className="hover:opacity-80 hover:scale-105 transition-all mb-4">
           <img
             src={logoFoodReviewer}
             alt="FoodReviewer Logo"
@@ -60,7 +84,7 @@ export default function Cadastro() {
         </Link>
 
         {/* Título */}
-        <h1 className="text-2xl font-bold text-white text-center mb-4 tracking-wide">
+        <h1 className="text-2xl font-bold text-white text-center mb-4 tracking-wide drop-shadow">
           Crie sua conta
         </h1>
 
@@ -123,7 +147,7 @@ export default function Cadastro() {
             </div>
           </div>
 
-          {/* Confirmar Senha */}
+          {/* Confirmar senha */}
           <div className="space-y-1">
             <Label htmlFor="confirmPassword" className="text-white/90 font-semibold text-sm">
               Confirmar senha
@@ -145,20 +169,21 @@ export default function Cadastro() {
           {/* Botão */}
           <Button
             type="submit"
-            className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.02] hover:shadow-accent/30 transition-all"
-          >
+            className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:shadow-accent/50 hover:bg-accent/90 transition-all cursor-pointer">
             Criar conta
           </Button>
 
           {/* Link de login */}
           <p className="text-center text-white/80 text-xs mt-1">
             Já tem uma conta?{" "}
-            <Link to="/login" className="text-accent font-semibold hover:underline">
+            <Link to="/login"
+              className="text-accent font-semibold hover:underline hover:text-accent/80 cursor-pointer transition-all">
               Faça login
             </Link>
           </p>
         </form>
       </div>
     </div>
+  </div>
   );
 }

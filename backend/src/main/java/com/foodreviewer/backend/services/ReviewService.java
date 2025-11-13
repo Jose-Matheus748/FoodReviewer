@@ -22,6 +22,11 @@ public class ReviewService {
         this.produtoRepository = produtoRepository;
     }
 
+    public boolean existsByUsuarioAndProduto(Usuario usuario, Produto produto) {
+        return reviewRepository.existsByUsuarioAndProduto(usuario, produto);
+    }
+
+
     @Transactional(readOnly = true)
     public List<Review> findByProdutoId(Long produtoId) {
         return reviewRepository.findByProduto_Id(produtoId);

@@ -5,6 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { User, Plus, Star } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
@@ -13,19 +14,19 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080
 interface Review {
   id: number;
   userName: string;
+  userId: number | null;
   rating: number;
   comment: string;
 }
 
 interface BackendReview {
   id: number;
-  comentario?: string;
   nota: number;
-  usuario?: {
-    id: number;
-    nome: string;
-  };
+  comentario?: string;
+  usuarioId: number | null;
+  usuarioNome: string;
 }
+
 
 interface NutritionalInfo {
   item: string;
@@ -62,6 +63,8 @@ interface ProductData {
 // Componente principal
 const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
+
+  const { usuario } = useAuth();
 
   const [productData, setProductData] = useState<ProductData | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -119,11 +122,13 @@ const ProductDetails = () => {
         const res = await fetch(`${API_BASE_URL}/reviews/produto/${id}`);
         if (res.ok) {
           const reviewsData: BackendReview[] = await res.json();
+        
           setReviews(
             reviewsData.map((r) => ({
               id: r.id,
-              userName: "Usuário Anônimo", //Aqui a gente pode colocara futuramente a função de nome aleatorios
-              rating: r.nota / 2, //adaptando do backend
+              userId: r.usuarioId,
+              userName: r.usuarioNome,
+              rating: r.nota / 2,
               comment: r.comentario || "",
             }))
           );
@@ -162,186 +167,231 @@ const ProductDetails = () => {
     );
   }
 
+  console.log("Usuário logado:", usuario);
+  console.log("Reviews carregadas:", reviews);
+  const userAlreadyReviewed = usuario
+  ? reviews.some((r) => r.userId === usuario.id)
+  : false;
+
+
   // Renderização principal
   return (
-    <div className="min-h-screen bg-[#d4d4d4]">
-      <DecorativeBlobs />
-      <Header />
+  <div className="min-h-screen relative flex flex-col bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
+    {/* Efeitos decorativos de fundo */}
+    <div
+      className="absolute inset-0 opacity-30 pointer-events-none"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 2px 2px, rgba(124, 58, 237, 0.08) 1px, transparent 0)",
+        backgroundSize: "40px 40px",
+      }}
+    />
+    <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
+    <div className="absolute bottom-0 right-0 w-[650px] h-[650px] translate-x-1/3 translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-tl from-primary/25 via-primary/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
 
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Seção do produto */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Imagem */}
-            <div className="flex items-center justify-center bg-[#d4d4d4] rounded-lg p-4">
-              <img
-                src={`${API_BASE_URL}/produtos/${id}/imagem`}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
-                }}
-                alt={productData.nome}
-                className="max-w-full h-auto object-contain max-h-64 rounded-lg shadow-md"
-              />
-            </div>
+    {/* Cabeçalho */}
+    <Header />
 
-            {/* Informações */}
-            <div className="md:col-span-2 space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                {productData.nome}
-              </h2>
+    {/* Conteúdo principal */}
+    <main className="relative z-10 container mx-auto px-4 py-10 max-w-6xl">
+      {/* Card principal do produto */}
+      <div className="bg-gradient-to-br from-white/90 via-white/80 to-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 mb-8 border border-primary/10 hover:shadow-primary/30 transition-all">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Imagem do produto */}
+          <div className="flex items-center justify-center bg-white/60 rounded-xl p-4 shadow-inner border border-gray-200">
+            <img
+              src={`${API_BASE_URL}/produtos/${id}/imagem`}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+              }}
+              alt={productData.nome}
+              className="max-w-full h-auto object-contain max-h-64 rounded-lg"
+            />
+          </div>
 
-              {productData.descricao && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Descrição:</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {productData.descricao}
-                  </p>
-                </div>
-              )}
+          {/* Informações do produto */}
+          <div className="md:col-span-2 space-y-4">
+            <h2 className="text-3xl font-bold text-primary drop-shadow">
+              {productData.nome}
+            </h2>
 
+            {productData.descricao && (
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Descrição</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {productData.descricao}
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
               {productData.marca && (
-                <p className="text-sm text-gray-700">
+                <p>
                   <strong>Marca:</strong> {productData.marca}
                 </p>
               )}
-
               {productData.tipo && (
-                <p className="text-sm text-gray-700">
+                <p>
                   <strong>Tipo:</strong> {productData.tipo}
                 </p>
               )}
-
               {productData.preco && (
-                <p className="text-sm text-gray-700">
-                  <strong>Preço:</strong> R$ {productData.preco}
+                <p>
+                  <strong>Preço:</strong>{" "}
+                  <span className="text-accent font-semibold">
+                    R$ {productData.preco.toFixed(2)}
+                  </span>
                 </p>
               )}
-
-              {(productData.pesoGramas || productData.densidade) && (
-                <div className="flex flex-col md:flex-row gap-4">
-                  {productData.pesoGramas && (
-                    <p className="text-sm text-gray-700">
-                      <strong>Peso:</strong> {productData.pesoGramas} g
-                    </p>
-                  )}
-                  {productData.densidade && (
-                    <p className="text-sm text-gray-700">
-                      <strong>Densidade:</strong> {productData.densidade}
-                    </p>
-                  )}
-                </div>
+              {productData.pesoGramas && (
+                <p>
+                  <strong>Peso:</strong> {productData.pesoGramas} g
+                </p>
               )}
+              {productData.densidade && (
+                <p>
+                  <strong>Densidade:</strong> {productData.densidade}
+                </p>
+              )}
+            </div>
 
-              {/* Avaliação média */}
-              <div className="pt-2 flex flex-col items-start gap-2">
-                {productData.averageRating && productData.averageRating > 0 ? (
-                  <>
-                    {renderStars(productData.averageRating)}
-                    <p className="text-sm text-gray-700 font-medium">
-                      Média:{" "}
-                      <span className="text-accent font-semibold">
-                        {productData.averageRating.toFixed(1)}
-                      </span>{" "}
-                      / 5 
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    {renderStars(0)}
-                    <p className="text-sm text-gray-500 italic">
-                      Este produto ainda não possui avaliações.
-                    </p>
-                  </>
-                )}
-              </div>
+            {/* Avaliação média */}
+            <div className="pt-3 flex flex-col items-start gap-2">
+              {productData.averageRating && productData.averageRating > 0 ? (
+                <>
+                  {renderStars(productData.averageRating)}
+                  <p className="text-sm text-gray-700 font-medium">
+                    Média:{" "}
+                    <span className="text-accent font-semibold">
+                      {productData.averageRating.toFixed(1)}
+                    </span>{" "}
+                    / 5
+                  </p>
+                </>
+              ) : (
+                <>
+                  {renderStars(0)}
+                  <p className="text-sm text-gray-500 italic">
+                    Este produto ainda não possui avaliações.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tabela Nutricional */}
-        {productData.tabelaNutricional && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Tabela Nutricional</h3>
-            <ul className="text-sm text-gray-700 space-y-2">
-              <li>Calorias: {productData.tabelaNutricional.calorias}</li>
-              <li>Proteínas: {productData.tabelaNutricional.proteinas} g</li>
-              <li>Carboidratos: {productData.tabelaNutricional.carboidratos} g</li>
-              <li>Gorduras saturadas: {productData.tabelaNutricional.gordurasSaturadas} g</li>
-              <li>Gorduras totais: {productData.tabelaNutricional.gordurasTotais} g</li>
-              <li>Fibras: {productData.tabelaNutricional.fibras} g</li>
-              <li>Açúcares: {productData.tabelaNutricional.acucares} g</li>
-              <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
-            </ul>
-          </div>//voces acham que seria melhor diminuir o tamanho desse card?
-        )}
+      {/* Tabela Nutricional */}
+      {productData.tabelaNutricional && (
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+          <h3 className="text-xl font-bold text-primary mb-4">Tabela Nutricional</h3>
+          <ul className="text-sm text-gray-700 grid grid-cols-2 sm:grid-cols-3 gap-y-2">
+            <li>Calorias: {productData.tabelaNutricional.calorias}</li>
+            <li>Proteínas: {productData.tabelaNutricional.proteinas} g</li>
+            <li>Carboidratos: {productData.tabelaNutricional.carboidratos} g</li>
+            <li>Gorduras Saturadas: {productData.tabelaNutricional.gordurasSaturadas} g</li>
+            <li>Gorduras Totais: {productData.tabelaNutricional.gordurasTotais} g</li>
+            <li>Fibras: {productData.tabelaNutricional.fibras} g</li>
+            <li>Açúcares: {productData.tabelaNutricional.acucares} g</li>
+            <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
+          </ul>
+        </div>
+      )}
 
-        {/* Ingredientes */}
-        {productData.ingredientes && productData.ingredientes.length > 0 && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Ingredientes</h3>
-            <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
-              {productData.ingredientes.map((ing) => (
-                <li key={ing.id}>{ing.nome}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+      {/* Ingredientes */}
+      {productData.ingredientes && productData.ingredientes.length > 0 && (
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+          <h3 className="text-xl font-bold text-primary mb-4">Ingredientes</h3>
+          <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
+            {productData.ingredientes.map((ing) => (
+              <li key={ing.id}>{ing.nome}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-        {/* Avaliações */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h2
-              className="text-3xl font-bold text-accent"
-              style={{
-                textShadow:
-                  "2px 2px 0 #8b009a, -1px -1px 0 #8b009a, 1px -1px 0 #8b009a, -1px 1px 0 #8b009a, 1px 1px 0 #8b009a",
-              }}
-            >
-              Avaliações:
-            </h2>
-            <Link to={`/produto/${id}/avaliar`}>
+      {/* Avaliações */}
+      <section>
+        <div className="flex items-center justify-between mb-5">
+          <h2
+            className="text-3xl font-bold text-accent"
+            style={{
+              textShadow:
+                "2px 2px 0 #8b009a, -1px -1px 0 #8b009a, 1px -1px 0 #8b009a, -1px 1px 0 #8b009a",
+            }}
+          >
+            Avaliações
+          </h2>
+          {usuario ? (
+            userAlreadyReviewed ? (
               <Button
                 size="icon"
-                className="rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg"
+                disabled
+                title="Você já avaliou este produto"
+                className="rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
               >
                 <Plus className="w-6 h-6" />
               </Button>
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {reviews.length === 0 ? (
-              <Card className="p-6 bg-white shadow-md">
-                <p className="text-gray-600 text-center">
-                  Esse produto não possui avaliações.
-                </p>
-              </Card>
             ) : (
-              reviews.map((review) => (
-                <Card
-                  key={review.id}
-                  className="p-5 bg-white shadow-md hover:shadow-lg transition-shadow"
+              <Link to={`/produto/${id}/avaliar`}>
+                <Button
+                  size="icon"
+                  className="rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg transition-all hover:scale-110"
                 >
-                  <div className="flex items-start gap-3">
-                    <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-primary text-lg mb-1">
-                        {review.userName}: {/*Sempre vai retornar "usuario anônimo" mas futuramente poedmos criar nomes aleatorios */}
-                      </h4>
-                      <p className="text-gray-700 mb-3 leading-relaxed whitespace-pre-line">
-                        {review.comment}
-                      </p>
-                      {renderStars(review.rating)}
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
+                  <Plus className="w-6 h-6" />
+                </Button>
+              </Link>
+            )
+          ) : (
+            <Button
+              size="icon"
+              disabled
+              title="Faça login para avaliar"
+              className="rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+          )}
         </div>
-      </main>
-    </div>
-  );
+
+        {reviews.length === 0 ? (
+          <Card className="p-6 bg-white/80 backdrop-blur-md shadow-md border border-gray-200">
+            <p className="text-gray-600 text-center">
+              Esse produto ainda não possui avaliações.
+            </p>
+          </Card>
+        ) : (
+          <div className="grid gap-5">
+            {reviews.map((review) => (
+              <Card
+                key={review.id}
+                className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl"
+              >
+                <div className="flex items-start gap-3">
+                  <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-primary text-lg mb-1">
+                      {review.userName}
+                    </h4>
+                    <p className="text-gray-700 mb-3 leading-relaxed whitespace-pre-line">
+                      {review.comment}
+                    </p>
+                    {renderStars(review.rating)}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  </div>
+);
+
 };
 
 export default ProductDetails;

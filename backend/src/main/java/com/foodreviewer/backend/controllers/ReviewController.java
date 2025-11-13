@@ -2,8 +2,10 @@ package com.foodreviewer.backend.controllers;
 
 import com.foodreviewer.backend.Entity.Review;
 import com.foodreviewer.backend.Entity.Produto;
+import com.foodreviewer.backend.Entity.Usuario;
 import com.foodreviewer.backend.dto.ReviewDTO;
 import com.foodreviewer.backend.dto.ReviewRequest;
+import com.foodreviewer.backend.repositories.UsuarioRepository;
 import com.foodreviewer.backend.services.ReviewService;
 import com.foodreviewer.backend.services.ProdutoService;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,11 +22,15 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final ProdutoService produtoService;
+    private final UsuarioRepository usuarioRepository; // ✅ Adicione esta linha
 
-    public ReviewController(ReviewService reviewService, ProdutoService produtoService) {
+    // ✅ Construtor para injeção
+    public ReviewController(ReviewService reviewService, ProdutoService produtoService, UsuarioRepository usuarioRepository) {
         this.reviewService = reviewService;
         this.produtoService = produtoService;
+        this.usuarioRepository = usuarioRepository;
     }
+
 
     @GetMapping("/produto/{produtoId}")
     public ResponseEntity<List<ReviewDTO>> getReviewsByProduto(@PathVariable Long produtoId) {
@@ -42,25 +48,39 @@ public class ReviewController {
     }
 
     @PostMapping("/produto/{produtoId}")
-    public ResponseEntity<ReviewDTO> criarReview(
+    public ResponseEntity<?> criarReview(
             @PathVariable Long produtoId,
             @RequestBody ReviewRequest request
     ) {
         try {
+            // ✅ 1. Buscar o produto
             Produto produto = produtoService.findById(produtoId)
                     .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
 
+            // ✅ 2. Verificar se o usuário está autenticado
+            if (request.usuarioId() == null) {
+                return ResponseEntity.status(401).body("Usuário não autenticado. Faça login para avaliar.");
+            }
+
+            Usuario usuario = usuarioRepository.findById(request.usuarioId())
+                    .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+            // ✅ 3. Impedir avaliações duplicadas (mesmo usuário + mesmo produto)
+            boolean jaAvaliou = reviewService.existsByUsuarioAndProduto(usuario, produto);
+            if (jaAvaliou) {
+                return ResponseEntity.badRequest().body("Você já avaliou este produto.");
+            }
+
+            // ✅ 4. Criar a nova avaliação
             Review review = new Review();
             review.setProduto(produto);
+            review.setUsuario(usuario);
             review.setNota(request.nota());
             review.setComentario(request.comentario());
 
-            //futuramente a gente pode pode associar o usuário autenticado
-            // review.setUsuario(usuarioRepository.findById(request.usuarioId()).orElse(null));
-
-            // Salvar a avaliação
             Review saved = reviewService.save(review);
 
+            // ✅ 5. Atualizar a média das avaliações do produto
             List<Review> todasReviews = reviewService.findByProdutoId(produtoId);
             double media = todasReviews.stream()
                     .mapToInt(Review::getNota)
@@ -70,7 +90,6 @@ public class ReviewController {
             produto.setAverageRating(BigDecimal.valueOf(media / 2));
             produtoService.saveProduto(produto);
 
-            // Retornar DTO para o front
             return ResponseEntity.ok(ReviewDTO.fromEntity(saved));
 
         } catch (EntityNotFoundException e) {
@@ -80,4 +99,5 @@ public class ReviewController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
 }

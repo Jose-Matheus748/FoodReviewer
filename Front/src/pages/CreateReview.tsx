@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star } from "lucide-react";
 import logo from "@/assets/logo-foodreviewer.png";
+import { useAuth } from "../context/AuthContext";
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -14,6 +16,8 @@ const CreateReview = () => {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { usuario } = useAuth();
 
   //essa é a função para clicar nas estrelas
   const handleStarClick = (starIndex: number) => {
@@ -37,7 +41,10 @@ const CreateReview = () => {
       const reviewData = {
         comentario: description || "",
         nota: rating * 2, // adaptado para o backend
+        usuarioId: usuario?.id, // ✅ Enviando o ID do usuário logado
       };
+
+      console.log("Enviando review com usuarioId:", usuario?.id);
 
       const response = await fetch(`${API_BASE_URL}/reviews/produto/${id}`, {
         method: "POST",
