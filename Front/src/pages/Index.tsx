@@ -14,7 +14,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 relative z-10">
         {/*Campo para pesquisar*/}
-        <section className="py-16 md:py-24 text-center relative">
+        <section className="py-16 md:py-15 text-center relative">
           <div className="max-w-4xl mx-auto space-y-8">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
               Descubra tudo sobre os{" "}

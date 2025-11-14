@@ -99,10 +99,8 @@ export const Header = () => {
           ) : (
             <Link to="/login">
               <Button
-                variant="default"
                 size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-8 shadow-md hover:shadow-lg transition-all"
-              >
+                className="px-8 py-2 rounded-full font-bold bg-accent text-white shadow-lg hover:bg-accent/90 hover:scale-105 hover:shadow-accent/40 transition-all duration-200">
                 Login
               </Button>
             </Link>

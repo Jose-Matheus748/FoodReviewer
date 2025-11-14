@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewService {
@@ -46,5 +47,9 @@ public class ReviewService {
     @Transactional
     public Review save(Review review) {
         return reviewRepository.save(review);
+    }
+
+    public Optional<Review> findById(Long id) {
+        return reviewRepository.findById(id);
     }
 }

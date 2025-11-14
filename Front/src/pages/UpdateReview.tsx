@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,15 +8,50 @@ import { useAuth } from "../context/AuthContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-const CreateReview = () => {
+const UpdateReview = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id, reviewId } = useParams<{ id: string; reviewId: string }>();
+
+  const { usuario } = useAuth();
+
   const [rating, setRating] = useState(0);
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingReview, setLoadingReview] = useState(true);
 
-  const { usuario } = useAuth();
+  useEffect(() => {
+    if (!id || !reviewId) {
+      setError("ID do produto ou avaliação não encontrados.");
+      setLoadingReview(false);
+      return;
+    }
+
+    const fetchReview = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}`);
+        if (!res.ok) throw new Error("Erro ao buscar avaliação");
+
+        const data = await res.json();
+        // Assume data tem a estrutura: { id, nota, comentario, usuarioId, usuarioNome, produtoId }
+
+        if (data.usuarioId !== usuario?.id) {
+          setError("Você não tem permissão para editar esta avaliação.");
+          setLoadingReview(false);
+          return;
+        }
+
+        setRating(data.nota / 2);
+        setDescription(data.comentario || "");
+      } catch (err) {
+        setError("Não foi possível carregar a avaliação.");
+      } finally {
+        setLoadingReview(false);
+      }
+    };
+
+    fetchReview();
+  }, [id, reviewId, usuario]);
 
   const handleStarClick = (starIndex: number) => {
     setRating(rating === starIndex ? 0 : starIndex);
@@ -27,36 +62,52 @@ const CreateReview = () => {
     setLoading(true);
     setError(null);
 
-    if (!id) {
-      setError("ID do produto não encontrado.");
+    if (!id || !reviewId) {
+      setError("ID do produto ou avaliação não encontrados.");
       setLoading(false);
       return;
     }
 
     try {
-      const reviewData = {
+      const updatedReview = {
         comentario: description || "",
         nota: rating * 2,
         usuarioId: usuario?.id,
       };
 
-      const response = await fetch(`${API_BASE_URL}/reviews/produto/${id}`, {
-        method: "POST",
+      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reviewData),
+        body: JSON.stringify(updatedReview),
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao enviar avaliação");
+        throw new Error("Erro ao atualizar avaliação");
       }
 
       navigate(`/produto/${id}`);
     } catch (err) {
-      setError("Não foi possível enviar a avaliação. Tente novamente.");
+      setError("Não foi possível atualizar a avaliação. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (loadingReview) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] p-4">
+        <p className="text-lg text-gray-700 font-semibold">Carregando avaliação...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] p-4">
+        <p className="text-red-600 font-semibold">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden p-4">
@@ -100,7 +151,7 @@ const CreateReview = () => {
 
           {/* Título */}
           <h1 className="text-2xl font-bold text-white text-center mb-6 tracking-wide drop-shadow">
-            Adicione sua avaliação
+            Atualize sua avaliação
           </h1>
 
           {/* Formulário */}
@@ -132,7 +183,7 @@ const CreateReview = () => {
                 htmlFor="descricao"
                 className="text-white/90 font-semibold text-sm block"
               >
-                Adicione uma descrição (opcional):
+                Atualize a descrição (opcional):
               </label>
               <Textarea
                 id="descricao"
@@ -154,7 +205,7 @@ const CreateReview = () => {
               disabled={loading || rating === 0}
               className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:shadow-accent/50 hover:bg-accent/90 transition-all cursor-pointer disabled:opacity-50"
             >
-              {loading ? "Enviando..." : "Postar avaliação"}
+              {loading ? "Atualizando..." : "Atualizar avaliação"}
             </Button>
           </form>
         </div>
@@ -163,4 +214,4 @@ const CreateReview = () => {
   );
 };
 
-export default CreateReview;
+export default UpdateReview;

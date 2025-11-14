@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 import { useAuth } from "../context/AuthContext";
@@ -12,6 +13,7 @@ export default function Cadastro() {
   const [email, setEmail] = useState("");
   const [senha, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 

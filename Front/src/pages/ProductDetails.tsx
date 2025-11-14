@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { User, Plus, Star } from "lucide-react";
+import { User, Plus, Star, Edit } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 
@@ -241,7 +241,7 @@ const ProductDetails = () => {
               )}
               {productData.preco && (
                 <p>
-                  <strong>Preço:</strong>{" "}
+                  <strong>Preço Médio:</strong>{" "}
                   <span className="text-accent font-semibold">
                     R$ {productData.preco.toFixed(2)}
                   </span>
@@ -369,8 +369,16 @@ const ProductDetails = () => {
             {reviews.map((review) => (
               <Card
                 key={review.id}
-                className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl"
+                className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl relative"
               >
+                {/* Botão de edição (apenas para o criador da review) */}
+                {usuario && review.userId === usuario.id && (
+                  <Link to={`/produto/${id}/avaliar/${review.id}`}>
+                    <button className="absolute top-4 right-4 p-2 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent transition-all hover:scale-110">
+                      <Edit className="w-5 h-5" />
+                    </button>
+                  </Link>
+                )}
                 <div className="flex items-start gap-3">
                   <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                   <div className="flex-1">

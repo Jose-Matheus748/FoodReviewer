@@ -47,6 +47,62 @@ public class ReviewController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable Long id) {
+        try {
+            Review review = reviewService.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Avaliação não encontrada"));
+
+            return ResponseEntity.ok(ReviewDTO.fromEntity(review));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<?> updateReview(
+            @PathVariable Long reviewId,
+            @RequestBody ReviewRequest request
+    ) {
+        try {
+            Review review = reviewService.findById(reviewId)
+                    .orElseThrow(() -> new EntityNotFoundException("Review não encontrada"));
+
+            // Atualiza campos
+            review.setComentario(request.comentario());
+            review.setNota(request.nota());
+
+            Review saved = reviewService.save(review);
+
+            // Agora recalcula a média do produto
+            Produto produto = review.getProduto();
+
+            List<Review> todas = reviewService.findByProdutoId(produto.getId());
+            double media = todas.stream()
+                    .mapToInt(Review::getNota)
+                    .average()
+                    .orElse(0.0);
+
+            // Lembre que sua nota vai até 10 — por isso divide por 2
+            produto.setAverageRating(BigDecimal.valueOf(media / 2));
+            produtoService.saveProduto(produto);
+
+            return ResponseEntity.ok(ReviewDTO.fromEntity(saved));
+
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+
+
     @PostMapping("/produto/{produtoId}")
     public ResponseEntity<?> criarReview(
             @PathVariable Long produtoId,
