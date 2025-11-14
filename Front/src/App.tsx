@@ -9,6 +9,8 @@ import Cadastro from "./pages/Cadastro";
 import ProductDetails from "./pages/ProductDetails";
 import CreateReview from "./pages/CreateReview";
 import NotFound from "./pages/NotFound";
+import UpdateReview from "./pages/updateReview";
+
 
 const queryClient = new QueryClient();
 
@@ -24,6 +26,10 @@ const App = () => (
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/produto/:id" element={<ProductDetails />} />
           <Route path="/produto/:id/avaliar" element={<CreateReview />} />
+
+          {/* Rota para edição da avaliação */}
+          <Route path="/produto/:id/avaliar/:reviewId" element={<UpdateReview />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

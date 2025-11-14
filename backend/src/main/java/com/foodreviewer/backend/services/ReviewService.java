@@ -1,43 +1,78 @@
 package com.foodreviewer.backend.services;
 
+import com.foodreviewer.backend.Entity.Produto;
 import com.foodreviewer.backend.Entity.Review;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.foodreviewer.backend.Entity.Usuario;
+import com.foodreviewer.backend.factory.ReviewFactory;
+import com.foodreviewer.backend.repositories.ProdutoRepository;
 import com.foodreviewer.backend.repositories.ReviewRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ReviewService {
 
-    @Autowired
-    private ReviewRepository reviewRepository;
+    private final ReviewRepository reviewRepository;
+    private final ProdutoRepository produtoRepository;
 
-    public Review saveReview(Review review){
+    public ReviewService(ReviewRepository reviewRepository, ProdutoRepository produtoRepository) {
+        this.reviewRepository = reviewRepository;
+        this.produtoRepository = produtoRepository;
+    }
+
+    public boolean existsByUsuarioAndProduto(Usuario usuario, Produto produto) {
+        return reviewRepository.existsByUsuarioAndProduto(usuario, produto);
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<Review> findByProdutoId(Long produtoId) {
+        return reviewRepository.findByProduto_Id(produtoId);
+    }
+
+    @Transactional
+    public Review saveForProduto(Long produtoId, String comentario, int nota, Usuario usuario) {
+        Produto produto = produtoRepository.findById(produtoId)
+                .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+
+        // Criação via Factory
+        Review review = ReviewFactory.criarReview(comentario, nota, usuario, produto);
+
         return reviewRepository.save(review);
     }
 
-    public List<Review> findAll(){
-        return reviewRepository.findAll();
+    @Transactional
+    public Review save(Review review) {
+        return reviewRepository.save(review);
     }
 
-    public Optional<Review> findById(Long id){
+    public Optional<Review> findById(Long id) {
         return reviewRepository.findById(id);
     }
 
-    public void deleteReview(Long id){
-        reviewRepository.deleteById(id);
-    }
+    @Transactional
+    public void deleteByIdAndRecalculate(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new EntityNotFoundException("Review não encontrada"));
 
-    public Optional<Review> updateReview(Review updateReview , Long id){
-        return Optional.of(findById(id).map(review -> {
-            review.setComentario(updateReview.getComentario());
-            review.setNota(updateReview.getNota());
-            review.setDataCriacao(updateReview.getDataCriacao());
-            review.setProduto(updateReview.getProduto());
-            review.setUsuario(updateReview.getUsuario());
-            return reviewRepository.save(review);
-        }).orElseThrow(() -> new RuntimeException("Review não existe")));
+        Produto produto = review.getProduto();
+        Long produtoId = produto.getId();
+
+        reviewRepository.deleteById(reviewId);
+
+        List<Review> restantes = reviewRepository.findByProduto_Id(produtoId);
+        double media = restantes.stream()
+                .mapToInt(Review::getNota)
+                .average()
+                .orElse(0.0);
+
+        produto.setAverageRating(BigDecimal.valueOf(media / 2));
+
+        produtoRepository.save(produto);
     }
 }

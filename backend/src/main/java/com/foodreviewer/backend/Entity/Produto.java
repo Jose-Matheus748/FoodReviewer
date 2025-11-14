@@ -1,26 +1,24 @@
 package com.foodreviewer.backend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Value;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
-
 import lombok.Getter;
 import lombok.Setter;
+import java.util.ArrayList;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 import java.math.BigDecimal;
-import java.security.Timestamp;
+import java.util.List;
 
 @Entity
 @Table(name = "produtos")
 @Getter
 @Setter
 public class Produto {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,48 +30,63 @@ public class Produto {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @Column (columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String marca;
 
-    @NotBlank(message = "O preço não pode estar em branco")
     @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
-    @Column(nullable = false, precision = 10,scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal preco;
 
-    @NotBlank(message = "O tipo do produto não pode estar em branco")
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String tipo;
-    /*@Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TipoProduto tipo; // //deletar isso aqui
-    //private String tipo; // ENUM: SOLIDO, LIQUIDO, PÓ*/
-    @NotBlank(message = "O peso não pode estar em branco")
+
     @DecimalMin(value = "0.01", message = "Valor não pode ser negativo")
-    @Column(nullable = false, precision = 10,scale = 2)
+    @Column(nullable = true, precision = 10, scale = 2)
     private BigDecimal pesoGramas;
 
+    @Column(precision = 10, scale = 2)
     private BigDecimal densidade;
 
     @Column(name = "data_cadastro", updatable = false)
     @CreationTimestamp
     private LocalDateTime dataCadastro;
-    /*    @Column(name = "data_cadastro", updatable = false)
-    @CreationTimestamp
-    private Timestamp dataCadastro;*/
 
+    //relacionamento 1:1 com tabela nutricional
     @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private TabelaNutricional tabelaNutricional;
 
-    @ElementCollection
-    private List<String> ingredientes; //add marca e ingrediente ao construtor
+    //relacionamento n:n com ingredientes
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "produto_ingrediente",
+            joinColumns = @JoinColumn(name = "produto_id"),
+            inverseJoinColumns = @JoinColumn(name = "ingrediente_id")
+    )
+    @JsonManagedReference
+    private List<Ingrediente> ingredientes;
 
     @ElementCollection
-    private List<String> alergenicos; //add ao construtor
+    private List<String> alergenicos;
 
-    public Produto() {
-    }
+    @Lob
+    @Column(name = "imagem")
+    @Basic(fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private byte[] imagem;
 
-    public Produto(Long id, String nome, String descricao, String marca, BigDecimal preco, String tipo, BigDecimal pesoGramas, BigDecimal densidade, TabelaNutricional tabelaNutricional) {
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Review> reviews = new ArrayList<>();
+
+    @Column(name = "average_rating", precision = 3, scale = 2)
+    private BigDecimal averageRating = BigDecimal.ZERO;
+
+    public Produto() {}
+
+    public Produto(Long id, String nome, String descricao, String marca, BigDecimal preco,
+                   String tipo, BigDecimal pesoGramas, BigDecimal densidade,
+                   TabelaNutricional tabelaNutricional, List<Ingrediente> ingredientes) {
         this.id = id;
         this.nome = nome;
         this.descricao = descricao;
@@ -82,103 +95,16 @@ public class Produto {
         this.tipo = tipo;
         this.pesoGramas = pesoGramas;
         this.densidade = densidade;
-        //this.dataCadastro = dataCadastro; tirei o dataCadastro daqui e dos argumentos, ele ta 100% cuidado pelo hibernate
         this.tabelaNutricional = tabelaNutricional;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public BigDecimal getPreco() {
-        return preco;
-    }
-
-    public void setPreco(BigDecimal preco) {
-        this.preco = preco;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public BigDecimal getPesoGramas() {
-        return pesoGramas;
-    }
-
-    public void setPesoGramas(BigDecimal pesoGramas) {
-        this.pesoGramas = pesoGramas;
-    }
-
-    public BigDecimal getDensidade() {
-        return densidade;
-    }
-
-    public void setDensidade(BigDecimal densidade) {
-        this.densidade = densidade;
-    }
-
-    public LocalDateTime getDataCadastro() {
-        return dataCadastro;
-    }
-
-    public void setDataCadastro(LocalDateTime dataCadastro) {
-        this.dataCadastro = dataCadastro;
-    }
-
-    public TabelaNutricional getTabelaNutricional() {
-        return tabelaNutricional;
-    }
-
-    public void setTabelaNutricional(TabelaNutricional tabelaNutricional) {
-        this.tabelaNutricional = tabelaNutricional;
-    }
-
-    public List<String> getIngredientes() {
-        return ingredientes;
-    }
-
-    public void setIngredientes(List<String> ingredientes) {
         this.ingredientes = ingredientes;
     }
 
-    public List<String> getAlergenicos() {
-        return alergenicos;
+    //metoodos opcionais que o chat recomendou
+    public void addIngrediente(Ingrediente ingrediente) {
+        this.ingredientes.add(ingrediente);
     }
 
-    public void setAlergenicos(List<String> alergenicos) {
-        this.alergenicos = alergenicos;
+    public void removeIngrediente(Ingrediente ingrediente) {
+        this.ingredientes.remove(ingrediente);
     }
 }

@@ -1,208 +1,454 @@
-import { useState } from "react";
+import { Header } from "@/components/Header";
+import { DecorativeBlobs } from "@/components/DecorativeBlobs";
+import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { User, Plus, Star } from "lucide-react";
-import logo from "@/assets/logo-foodreviewer.png";
+import { User, Plus, Star, Edit, Trash } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
-// Tipo para avaliação
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+// Interfaces de tipos definindo os dados que vao ser usados
 interface Review {
   id: number;
   userName: string;
+  userId: number | null;
   rating: number;
   comment: string;
 }
 
-// Tipo para informação nutricional
+interface BackendReview {
+  id: number;
+  nota: number;
+  comentario?: string;
+  usuarioId: number | null;
+  usuarioNome: string;
+}
+
+
 interface NutritionalInfo {
   item: string;
   quantidade: string;
   valorDiario: string;
 }
 
+interface ProductData {
+  id: number;
+  nome: string;
+  descricao: string;
+  marca: string;
+  preco: number;
+  tipo: string;
+  pesoGramas: number;
+  densidade: number;
+  averageRating?: number;
+  ingredientes?: { id: number; nome: string }[];
+  tabelaNutricional?: {
+    id?: number;
+    acucares?: number;
+    calorias?: number;
+    carboidratos?: number;
+    fibras?: number;
+    gordurasSaturadas?: number;
+    gordurasTotais?: number;
+    outros?: number;
+    proteinas?: number;
+    sodio?: number;
+    produto_id?: number;
+  };
+}
+
+// Componente principal
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
-  // DADOS VAZIOS - serão preenchidos com dados do banco
-  const [productData] = useState({
-    name: "", // virá do banco de dados
-    imageUrl: "/placeholder.svg", // virá do banco de dados
-    ingredients: "", // virá do banco de dados
-    averageRating: 0, // calculado com base nas avaliações
-    labelImageUrl: "/placeholder.svg", // virá do banco de dados
-  });
+  const { usuario } = useAuth();
 
-  const [nutritionalInfo] = useState<NutritionalInfo[]>([]); // virá do banco de dados
+  const [productData, setProductData] = useState<ProductData | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [reviews] = useState<Review[]>([]); // virá do banco de dados
+  // Função auxiliar para renderizar estrelas
+  const renderStars = (rating: number) => (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-6 h-6 ${
+            star <= Math.round(rating)
+              ? "fill-accent text-accent"
+              : "fill-gray-300 text-gray-300"
+          }`}
+        />
+      ))}
+    </div>
+  );
 
-  const [userName] = useState(""); // virá do banco de dados (usuário autenticado)
+  // esse useEffect serve pra buscar produto e avaliações
+  useEffect(() => {
+    if (!id) return;
 
-  // Função para renderizar estrelas
-  const renderStars = (rating: number) => {
+    const fetchProduct = async () => { //fetch pega as informações do back
+      try {
+        const res = await fetch(`${API_BASE_URL}/produtos/${id}`);
+        if (!res.ok) throw new Error("Erro ao buscar produto");
+        const data = await res.json();
+        setProductData({
+          id: data.id,
+          nome: data.nome,
+          descricao: data.descricao,
+          marca: data.marca,
+          preco: data.preco,
+          tipo: data.tipo,
+          pesoGramas: data.pesoGramas,
+          densidade: data.densidade,
+          averageRating: data.averageRating || 0,
+          tabelaNutricional: data.tabelaNutricional || {},
+          ingredientes: data.ingredientes || [],
+        });
+      } catch (err) {
+        console.error(err);
+        setError("Não foi possível carregar o produto.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/reviews/produto/${id}`);
+        if (res.ok) {
+          const reviewsData: BackendReview[] = await res.json();
+        
+          setReviews(
+            reviewsData.map((r) => ({
+              id: r.id,
+              userId: r.usuarioId,
+              userName: r.usuarioNome,
+              rating: r.nota / 2,
+              comment: r.comentario || "",
+            }))
+          );
+        }
+      } catch (err) {
+        console.error("Erro ao buscar avaliações:", err);
+      }
+    };
+
+    fetchProduct();
+    fetchReviews();
+  }, [id]);
+
+  // Condições de carregamento e erro
+  if (loading) {
     return (
-      <div className="flex gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`w-6 h-6 ${
-              star <= rating ? "fill-accent text-accent" : "fill-gray-400 text-gray-400"
-            }`}
-          />
-        ))}
+      <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
+        <p className="text-lg text-gray-700 font-semibold">Carregando produto...</p>
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
+        <p className="text-lg text-red-600 font-semibold">{error}</p>
+      </div>
+    );
+  }
+
+  if (!productData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#d4d4d4]">
+        <p className="text-lg text-gray-600">Produto não encontrado.</p>
+      </div>
+    );
+  }
+
+  console.log("Usuário logado:", usuario);
+  console.log("Reviews carregadas:", reviews);
+  const userAlreadyReviewed = usuario
+  ? reviews.some((r) => r.userId === usuario.id)
+  : false;
+
+  const handleDeleteReview = async (reviewId: number) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}?usuarioId=${usuario?.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Erro ao deletar avaliação");
+
+      // Atualiza lista localmente: filtra a review deletada
+      setReviews((prev) => prev.filter(r => r.id !== reviewId));
+
+      // Recarrega os dados do produto (para atualizar averageRating)
+      const prodRes = await fetch(`${API_BASE_URL}/produtos/${id}`);
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        setProductData(prev => prev ? { ...prev, averageRating: prodData.averageRating } : prev);
+      }
+    } catch (err) {
+      console.error("Erro ao deletar review:", err);
+    }
   };
 
+  // Renderização principal
   return (
-    <div className="min-h-screen bg-[#d4d4d4]">
-      {/* Header */}
-      <header className="bg-gradient-to-r from-primary to-secondary py-4 px-6 flex items-center justify-between shadow-lg">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="FoodReviewer Logo" className="w-10 h-10 object-contain" />
-          <h1 className="text-2xl md:text-3xl font-bold text-accent">FoodReviewer</h1>
-        </Link>
-        <div className="flex items-center gap-2 text-white">
-          <User className="w-6 h-6" />
-          {userName && <span className="font-medium">{userName}</span>}
-        </div>
-      </header>
+  <div className="min-h-screen relative flex flex-col bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
+    {/* Efeitos decorativos de fundo */}
+    <div
+      className="absolute inset-0 opacity-30 pointer-events-none"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 2px 2px, rgba(124, 58, 237, 0.08) 1px, transparent 0)",
+        backgroundSize: "40px 40px",
+      }}
+    />
+    <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
+    <div className="absolute bottom-0 right-0 w-[650px] h-[650px] translate-x-1/3 translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-tl from-primary/25 via-primary/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
 
-      {/* Conteúdo Principal */}
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Seção do Produto */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Imagem do Produto */}
-            <div className="flex items-center justify-center bg-[#d4d4d4] rounded-lg p-4">
-              <img
-                src={productData.imageUrl}
-                alt={productData.name}
-                className="max-w-full h-auto object-contain max-h-64"
-              />
+    {/* Cabeçalho */}
+    <Header />
+
+    {/* Conteúdo principal */}
+    <main className="relative z-10 container mx-auto px-4 py-10 max-w-6xl">
+      {/* Card principal do produto */}
+      <div className="bg-gradient-to-br from-white/90 via-white/80 to-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-8 mb-8 border border-primary/10 hover:shadow-primary/30 transition-all">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Imagem do produto */}
+          <div className="flex items-center justify-center bg-white/60 rounded-xl p-4 shadow-inner border border-gray-200">
+            <img
+              src={`${API_BASE_URL}/produtos/${id}/imagem`}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+              }}
+              alt={productData.nome}
+              className="max-w-full h-auto object-contain max-h-64 rounded-lg"
+            />
+          </div>
+
+          {/* Informações do produto */}
+          <div className="md:col-span-2 space-y-4">
+            <h2 className="text-3xl font-bold text-primary drop-shadow">
+              {productData.nome}
+            </h2>
+
+            {productData.descricao && (
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Descrição</h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {productData.descricao}
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
+              {productData.marca && (
+                <p>
+                  <strong>Marca:</strong> {productData.marca}
+                </p>
+              )}
+              {productData.tipo && (
+                <p>
+                  <strong>Tipo:</strong> {productData.tipo}
+                </p>
+              )}
+              {productData.preco && (
+                <p>
+                  <strong>Preço Médio:</strong>{" "}
+                  <span className="text-accent font-semibold">
+                    R$ {productData.preco.toFixed(2)}
+                  </span>
+                </p>
+              )}
+              {productData.pesoGramas && (
+                <p>
+                  <strong>Peso:</strong> {productData.pesoGramas} g
+                </p>
+              )}
+              {productData.densidade && (
+                <p>
+                  <strong>Densidade:</strong> {productData.densidade}
+                </p>
+              )}
             </div>
 
-            {/* Informações do Produto */}
-            <div className="md:col-span-2 space-y-4">
-              {productData.name ? (
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  {productData.name}
-                </h2>
-              ) : (
-                <div className="h-8 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-              )}
-
-              {productData.ingredients && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Ingredientes:</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {productData.ingredients}
+            {/* Avaliação média */}
+            <div className="pt-3 flex flex-col items-start gap-2">
+              {productData.averageRating && productData.averageRating > 0 ? (
+                <>
+                  {renderStars(productData.averageRating)}
+                  <p className="text-sm text-gray-700 font-medium">
+                    Média:{" "}
+                    <span className="text-accent font-semibold">
+                      {productData.averageRating.toFixed(1)}
+                    </span>{" "}
+                    / 5
                   </p>
-                </div>
+                </>
+              ) : (
+                <>
+                  {renderStars(0)}
+                  <p className="text-sm text-gray-500 italic">
+                    Este produto ainda não possui avaliações.
+                  </p>
+                </>
               )}
-
-              {/* Avaliação Média */}
-              <div className="pt-2">
-                {renderStars(Math.round(productData.averageRating))}
-              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tabela Nutricional - Só aparece se houver dados */}
-        {nutritionalInfo.length > 0 && (
-          <Card className="p-6 mb-6 bg-white shadow-lg">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Tabela nutricional</h3>
-            <p className="text-sm text-gray-600 mb-4">Porção de 30G - 6 biscoitos</p>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b-2 border-gray-300">
-                    <th className="text-left py-2 px-4 text-gray-700 font-semibold">ITEM</th>
-                    <th className="text-left py-2 px-4 text-gray-700 font-semibold">QTDE. POR PORÇÃO</th>
-                    <th className="text-left py-2 px-4 text-gray-700 font-semibold">VALORES DIÁRIOS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {nutritionalInfo.map((info, index) => (
-                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                      <td className="py-3 px-4 text-gray-700">{info.item}</td>
-                      <td className="py-3 px-4 text-gray-700">{info.quantidade}</td>
-                      <td className="py-3 px-4 text-gray-700">{info.valorDiario}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-        )}
+      {/* Tabela Nutricional */}
+      {productData.tabelaNutricional && (
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+          <h3 className="text-xl font-bold text-primary mb-4">Tabela Nutricional</h3>
+          <ul className="text-sm text-gray-700 grid grid-cols-2 sm:grid-cols-3 gap-y-2">
+            <li>Calorias: {productData.tabelaNutricional.calorias}</li>
+            <li>Proteínas: {productData.tabelaNutricional.proteinas} g</li>
+            <li>Carboidratos: {productData.tabelaNutricional.carboidratos} g</li>
+            <li>Gorduras Saturadas: {productData.tabelaNutricional.gordurasSaturadas} g</li>
+            <li>Gorduras Totais: {productData.tabelaNutricional.gordurasTotais} g</li>
+            <li>Fibras: {productData.tabelaNutricional.fibras} g</li>
+            <li>Açúcares: {productData.tabelaNutricional.acucares} g</li>
+            <li>Sódio: {productData.tabelaNutricional.sodio} g</li>
+          </ul>
+        </div>
+      )}
 
-        {/* Seção de Avaliações */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h2 
-              className="text-3xl font-bold text-accent" 
-              style={{ 
-                textShadow: '2px 2px 0 #8b009a, -1px -1px 0 #8b009a, 1px -1px 0 #8b009a, -1px 1px 0 #8b009a, 1px 1px 0 #8b009a'
-              }}
-            >
-              Avaliações:
-            </h2>
-            <Link to={`/produto/${id}/avaliar`}>
+      {/* Ingredientes */}
+      {productData.ingredientes && productData.ingredientes.length > 0 && (
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
+          <h3 className="text-xl font-bold text-primary mb-4">Ingredientes</h3>
+          <ul className="text-sm text-gray-700 list-disc list-inside space-y-1">
+            {productData.ingredientes.map((ing) => (
+              <li key={ing.id}>{ing.nome}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Avaliações */}
+      <section>
+        <div className="flex items-center justify-between mb-5">
+          <h2
+            className="text-3xl font-bold text-accent"
+            style={{
+              textShadow:
+                "2px 2px 0 #8b009a, -1px -1px 0 #8b009a, 1px -1px 0 #8b009a, -1px 1px 0 #8b009a",
+            }}
+          >
+            Avaliações
+          </h2>
+          {usuario ? (
+            userAlreadyReviewed ? (
               <Button
                 size="icon"
-                className="rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg"
+                disabled
+                title="Você já avaliou este produto"
+                className="rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
               >
                 <Plus className="w-6 h-6" />
               </Button>
-            </Link>
-          </div>
-
-          {/* Lista de Avaliações */}
-          <div className="space-y-4">
-            {reviews.length === 0 ? (
-              <Card className="p-6 bg-white shadow-md">
-                <p className="text-gray-600 text-center">
-                  Esse produto não possui avaliações.
-                </p>
-              </Card>
             ) : (
-              reviews.map((review) => (
-                <Card key={review.id} className="p-5 bg-white shadow-md hover:shadow-lg transition-shadow">
-                  <div className="flex items-start gap-3">
-                    <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-semibold text-primary text-lg">
-                          {review.userName}:
-                        </h4>
-                      </div>
-                      <p className="text-gray-700 mb-3 leading-relaxed whitespace-pre-line">
-                        {review.comment}
-                      </p>
-                      <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className={`w-5 h-5 ${
-                              star <= review.rating
-                                ? "fill-accent text-accent"
-                                : "fill-gray-300 text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
+              <Link to={`/produto/${id}/avaliar`}>
+                <Button
+                  size="icon"
+                  className="rounded-full bg-accent hover:bg-accent/90 text-white shadow-lg transition-all hover:scale-110"
+                >
+                  <Plus className="w-6 h-6" />
+                </Button>
+              </Link>
+            )
+          ) : (
+            <Button
+              size="icon"
+              disabled
+              title="Faça login para avaliar"
+              className="rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+          )}
         </div>
-      </main>
-    </div>
-  );
+
+        {reviews.length === 0 ? (
+          <Card className="p-6 bg-white/80 backdrop-blur-md shadow-md border border-gray-200">
+            <p className="text-gray-600 text-center">
+              Esse produto ainda não possui avaliações.
+            </p>
+          </Card>
+        ) : (
+          <div className="grid gap-5">
+            {reviews.map((review) => (
+              <Card
+                key={review.id}
+                className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl relative"
+              >
+                {usuario && review.userId === usuario.id && (
+                  <div className="absolute top-4 right-4 flex gap-2">
+                  
+                    {/* botao pra editar review */}
+                    <Link to={`/produto/${id}/avaliar/${review.id}`}>
+                      <button className="p-2 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent transition-all hover:scale-110">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                    </Link>
+
+                    {/* botao de excluir review */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-all hover:scale-110">
+                          <Trash className="w-5 h-5" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir avaliação?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta ação é permanente e não poderá ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="bg-red-600 text-white hover:bg-red-700">
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
+                <div className="flex items-start gap-3">
+                  <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-primary text-lg mb-1">
+                      {review.userName}
+                    </h4>
+                    <p className="text-gray-700 mb-3 leading-relaxed whitespace-pre-line">
+                      {review.comment}
+                    </p>
+                    {renderStars(review.rating)}
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  </div>
+);
+
 };
 
 export default ProductDetails;

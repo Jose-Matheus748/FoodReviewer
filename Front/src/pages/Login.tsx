@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link, useNavigate } from "react-router-dom"; // useNavigate adicionado
-import { useAuth } from '../context/AuthContext'; // CORRIGIDO
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
+import { Mail, Lock } from "lucide-react";
 
 export default function Login() {
-  const navigate = useNavigate(); // Uso do hook de navegação
-  const { login } = useAuth(); // Uso do hook de autenticação
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,31 +17,23 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/usuarios/login", { // Novo endpoint
+      const response = await fetch("/api/usuarios/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email,
-          senha: password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha: password }),
       });
 
       if (response.ok) {
         const userData = await response.json();
-        // Armazena o usuário no contexto
         login({
           id: userData.id,
           apelido: userData.apelido,
           email: userData.email,
         });
         console.log("Login realizado com sucesso!");
-        alert("Login realizado com sucesso!");
-        navigate("/"); // Redireciona para a tela inicial
+        navigate("/");
       } else {
         const errorData = await response.json();
-        console.error("Falha no login:", errorData.message || response.statusText);
         alert("Erro ao fazer login: " + (errorData.message || response.statusText));
       }
     } catch (error) {
@@ -50,78 +43,104 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E8E8E8] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl shadow-2xl p-8 border border-primary/20">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <Link to="/" className="hover:opacity-80 transition-opacity">
-              <img 
-                src={logoFoodReviewer} 
-                alt="FoodReviewer Logo" 
-                className="w-24 h-24 object-contain cursor-pointer"
-              />
-            </Link>
-          </div>
+  <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
+    {/* Pontos no background */}
+    <div
+      className="absolute inset-0 opacity-30 pointer-events-none"
+      style={{
+        backgroundImage:
+          "radial-gradient(circle at 2px 2px, rgba(89, 37, 179, 0.81) 1px, transparent 0)",
+        backgroundSize: "40px 40px",
+      }}
+    />
 
-          {/* Titulo */}
-          <h1 className="text-3xl font-bold text-white text-center mb-8">
-            Login
-          </h1>
+    {/*Efeitos de luz suaves */}
+    <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
+    <div className="absolute bottom-0 right-0 w-[650px] h-[650px] translate-x-1/3 translate-y-1/3 pointer-events-none">
+      <div className="absolute inset-0 bg-gradient-to-tl from-primary/25 via-primary/15 to-transparent rounded-full blur-3xl animate-pulse" />
+    </div>
 
-          {/* Formulario de login */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-accent font-semibold text-base">
-                Email
-              </Label>
+    {/*Card principal de login */}
+    <div className="relative z-10 w-full max-w-sm bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl shadow-2xl border border-accent/30 p-6 flex flex-col items-center justify-center overflow-hidden backdrop-blur-sm">
+      {/* Brilho interno*/}
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 rounded-3xl pointer-events-none" />
+
+      {/* Conteúdo */}
+      <div className="relative z-10 w-full flex flex-col items-center">
+        {/* Logo */}
+        <Link to="/" className="hover:opacity-80 hover:scale-105 transition-all mb-4">
+          <img
+            src={logoFoodReviewer}
+            alt="FoodReviewer Logo"
+            className="w-16 h-16 object-contain drop-shadow-lg"
+          />
+        </Link>
+
+        {/* Título */}
+        <h1 className="text-2xl font-bold text-white text-center mb-4 tracking-wide drop-shadow">
+          Bem-vindo de volta
+        </h1>
+
+        {/* Formulário */}
+        <form onSubmit={handleSubmit} className="w-full space-y-4">
+          {/* Email */}
+          <div className="space-y-1">
+            <Label htmlFor="email" className="text-white/90 font-semibold text-sm">
+              Email
+            </Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
+                className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
                 placeholder="Digite seu email"
                 required
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-accent font-semibold text-base">
-                Senha
-              </Label>
+          {/* Senha */}
+          <div className="space-y-1">
+            <Label htmlFor="password" className="text-white/90 font-semibold text-sm">
+              Senha
+            </Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
               <Input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="bg-primary/40 border-primary/30 text-white placeholder:text-white/50 focus:border-accent focus:ring-accent h-12"
+                className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
                 placeholder="Digite sua senha"
                 required
               />
             </div>
+          </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-transparent border-2 border-accent text-accent hover:bg-accent hover:text-primary font-bold h-12 text-base rounded-lg transition-all"
-            >
-              Entrar
-            </Button>
+          {/* Botão */}
+          <Button
+            type="submit"
+            className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:shadow-accent/50 hover:bg-accent/90 transition-all cursor-pointer">
+            Entrar
+          </Button>
 
-            <div className="text-center mt-6">
-              <p className="text-white/80 text-sm">
-                Não tem uma conta?{" "}
-                <Link 
-                  to="/cadastro" 
-                  className="text-accent font-semibold hover:underline"
-                >
-                  Cadastre-se
-                </Link>
-              </p>
-            </div>
-          </form>
-        </div>
+          {/* Link de cadastro */}
+          <p className="text-center text-white/80 text-xs mt-2">
+            Ainda não tem uma conta?{" "}
+            <Link to="/cadastro"
+              className="text-accent font-semibold hover:underline hover:text-accent/80 cursor-pointer transition-all">
+              Cadastre-se
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
+  </div>
   );
 }

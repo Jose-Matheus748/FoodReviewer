@@ -16,14 +16,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(() => {
-    // Tenta carregar o usuário do localStorage ao iniciar
-    const storedUser = localStorage.getItem('apelido');
-    // Nota: O apelido no DTO do Spring Boot é o 'username' da entidade Usuario.
+    // ✅ Corrigido: usa a chave 'usuario' para manter consistência
+    const storedUser = localStorage.getItem('usuario');
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  // ✅ Atualiza o localStorage sempre que o estado mudar
   useEffect(() => {
-    // Sincroniza o estado do usuário com o localStorage
     if (usuario) {
       localStorage.setItem('usuario', JSON.stringify(usuario));
     } else {
@@ -33,10 +32,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = (userData: Usuario) => {
     setUsuario(userData);
+    localStorage.setItem('usuario', JSON.stringify(userData)); // ✅ garante persistência imediata
   };
 
   const logout = () => {
     setUsuario(null);
+    localStorage.removeItem('usuario'); // ✅ limpa corretamente
   };
 
   return (
@@ -46,9 +47,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
+// Hook personalizado para usar o contexto
+//ta marcado de amarelo por causa do eslint 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;

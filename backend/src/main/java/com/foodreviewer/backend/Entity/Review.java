@@ -97,38 +97,6 @@ public class Review {
         this.dataCriacao = dataCriacao;
     }
 
-    public static class ReviewBuilder{
-        private String comentario;
-        private int nota;
-        private Usuario usuario;
-        private Produto produto;
 
-        public ReviewBuilder comentario(String Comentario){
-            this.comentario = comentario;
-            return this;
-        }
-        public ReviewBuilder nota(int nota){
-            this.nota = nota;
-            return this;
-        }
-        public ReviewBuilder usuario(Usuario usuario){
-            this.usuario = usuario;
-            return this;
-        }
-        public ReviewBuilder produto(Produto produto){
-            this.produto = produto;
-            return this;
-        }
-
-        public Review build() {
-            Review review = new Review();
-            review.setComentario(comentario);
-            review.setNota(nota);
-            review.setUsuario(usuario);
-            review.setProduto(produto);
-            return review;
-        }
-    }
+    // Getters e setters...
 }
-
-

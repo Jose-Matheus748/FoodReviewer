@@ -14,7 +14,7 @@ const Index = () => {
       
       <main className="container mx-auto px-4 relative z-10">
         {/*Campo para pesquisar*/}
-        <section className="py-16 md:py-24 text-center relative">
+        <section className="py-16 md:py-15 text-center relative">
           <div className="max-w-4xl mx-auto space-y-8">
             <h2 className="text-4xl md:text-5xl font-bold text-foreground leading-tight">
               Descubra tudo sobre os{" "}
@@ -31,13 +31,13 @@ const Index = () => {
         </section>
 
         {/*Cards*/}
-        <section className="py-12 pb-20">
+        <section className="py-1 pb-1">
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-8 justify-center items-stretch">
             {/* Card Rotulos */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-row items-center max-w-md w-full">
               <img src={labelIcon} alt="imagem rotulo" className="w-1/2 h-full object-cover" />
               <div className="p-4 flex-1 flex flex-col justify-center">
-                <h5 className="text-lg font-semibold mb-2 text-[#d6007f]">Consulte Rótulos</h5>
+                <h5 className="text-lg font-semibold mb-2 text-[#8b009a]">Consulte Rótulos</h5>
                 <p className="text-gray-700 text-sm">
                   Consulte o rótulo dos produtos que você consome.
                 </p>
