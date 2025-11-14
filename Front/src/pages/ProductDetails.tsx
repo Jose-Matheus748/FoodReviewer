@@ -117,6 +117,8 @@ const ProductDetails = () => {
       }
     };
 
+    //Comentario aleatorio so pra fazer um novo commit 
+
     const fetchReviews = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/reviews/produto/${id}`);
