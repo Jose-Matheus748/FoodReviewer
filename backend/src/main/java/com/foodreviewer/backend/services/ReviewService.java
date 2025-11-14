@@ -9,6 +9,8 @@ import com.foodreviewer.backend.repositories.ReviewRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,5 +53,26 @@ public class ReviewService {
 
     public Optional<Review> findById(Long id) {
         return reviewRepository.findById(id);
+    }
+
+    @Transactional
+    public void deleteByIdAndRecalculate(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new EntityNotFoundException("Review não encontrada"));
+
+        Produto produto = review.getProduto();
+        Long produtoId = produto.getId();
+
+        reviewRepository.deleteById(reviewId);
+
+        List<Review> restantes = reviewRepository.findByProduto_Id(produtoId);
+        double media = restantes.stream()
+                .mapToInt(Review::getNota)
+                .average()
+                .orElse(0.0);
+
+        produto.setAverageRating(BigDecimal.valueOf(media / 2));
+
+        produtoRepository.save(produto);
     }
 }

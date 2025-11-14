@@ -101,6 +101,32 @@ public class ReviewController {
         }
     }
 
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<?> deleteReview(
+            @PathVariable Long reviewId,
+            @RequestParam(required = false) Long usuarioId // opcional: id do usuário que tenta deletar
+    ) {
+        try {
+            // buscar review para verificar dono (opcional)
+            Review review = reviewService.findById(reviewId)
+                    .orElseThrow(() -> new EntityNotFoundException("Review não encontrada"));
+
+            // Se quiser checar que só o dono pode deletar:
+            if (usuarioId != null) {
+                if (review.getUsuario() == null || !review.getUsuario().getId().equals(usuarioId)) {
+                    return ResponseEntity.status(403).body("Você não tem permissão para excluir essa avaliação.");
+                }
+            }
+            // chama service que deleta e recalcula média
+            reviewService.deleteByIdAndRecalculate(reviewId);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Erro ao deletar avaliação");
+        }
+    }
 
 
     @PostMapping("/produto/{produtoId}")
@@ -109,11 +135,9 @@ public class ReviewController {
             @RequestBody ReviewRequest request
     ) {
         try {
-            // ✅ 1. Buscar o produto
             Produto produto = produtoService.findById(produtoId)
                     .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
 
-            // ✅ 2. Verificar se o usuário está autenticado
             if (request.usuarioId() == null) {
                 return ResponseEntity.status(401).body("Usuário não autenticado. Faça login para avaliar.");
             }
@@ -121,13 +145,13 @@ public class ReviewController {
             Usuario usuario = usuarioRepository.findById(request.usuarioId())
                     .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
-            // ✅ 3. Impedir avaliações duplicadas (mesmo usuário + mesmo produto)
+            // teste pra impedir avaliações duplicadas (mesmo usuário + mesmo produto)
             boolean jaAvaliou = reviewService.existsByUsuarioAndProduto(usuario, produto);
             if (jaAvaliou) {
                 return ResponseEntity.badRequest().body("Você já avaliou este produto.");
             }
 
-            // ✅ 4. Criar a nova avaliação
+            //Cria a nova avaliação
             Review review = new Review();
             review.setProduto(produto);
             review.setUsuario(usuario);
@@ -136,7 +160,7 @@ public class ReviewController {
 
             Review saved = reviewService.save(review);
 
-            // ✅ 5. Atualizar a média das avaliações do produto
+            //atualiza a média das avaliações do produto
             List<Review> todasReviews = reviewService.findByProdutoId(produtoId);
             double media = todasReviews.stream()
                     .mapToInt(Review::getNota)

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { User, Plus, Star, Edit } from "lucide-react";
+import { User, Plus, Star, Edit, Trash } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -173,6 +173,26 @@ const ProductDetails = () => {
   ? reviews.some((r) => r.userId === usuario.id)
   : false;
 
+  const handleDeleteReview = async (reviewId: number) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}?usuarioId=${usuario?.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Erro ao deletar avaliação");
+
+      // Atualiza lista localmente: filtra a review deletada
+      setReviews((prev) => prev.filter(r => r.id !== reviewId));
+
+      // Recarrega os dados do produto (para atualizar averageRating)
+      const prodRes = await fetch(`${API_BASE_URL}/produtos/${id}`);
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        setProductData(prev => prev ? { ...prev, averageRating: prodData.averageRating } : prev);
+      }
+    } catch (err) {
+      console.error("Erro ao deletar review:", err);
+    }
+  };
 
   // Renderização principal
   return (
@@ -371,13 +391,42 @@ const ProductDetails = () => {
                 key={review.id}
                 className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl relative"
               >
-                {/* Botão de edição (apenas para o criador da review) */}
                 {usuario && review.userId === usuario.id && (
-                  <Link to={`/produto/${id}/avaliar/${review.id}`}>
-                    <button className="absolute top-4 right-4 p-2 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent transition-all hover:scale-110">
-                      <Edit className="w-5 h-5" />
-                    </button>
-                  </Link>
+                  <div className="absolute top-4 right-4 flex gap-2">
+                  
+                    {/* botao pra editar review */}
+                    <Link to={`/produto/${id}/avaliar/${review.id}`}>
+                      <button className="p-2 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent transition-all hover:scale-110">
+                        <Edit className="w-5 h-5" />
+                      </button>
+                    </Link>
+
+                    {/* botao de excluir review */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="p-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 transition-all hover:scale-110">
+                          <Trash className="w-5 h-5" />
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir avaliação?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Esta ação é permanente e não poderá ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="bg-red-600 text-white hover:bg-red-700">
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 )}
                 <div className="flex items-start gap-3">
                   <User className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
