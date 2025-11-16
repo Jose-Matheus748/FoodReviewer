@@ -11,6 +11,7 @@ import CreateReview from "./pages/CreateReview";
 import NotFound from "./pages/NotFound";
 import UpdateReview from "./pages/UpdateReview";
 import CreateAdmin from "./pages/CreateAdmin";
+import CadastroProduto from "./pages/CadastroProduto";
 
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/produto/:id" element={<ProductDetails />} />
           <Route path="/produto/:id/avaliar" element={<CreateReview />} />
+        <Route path="/cadastro-produto" element={<CadastroProduto />} />
 
           {/* Rota para edição da avaliação */}
           <Route path="/produto/:id/avaliar/:reviewId" element={<UpdateReview />} />
