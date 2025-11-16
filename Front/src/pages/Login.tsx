@@ -29,6 +29,7 @@ export default function Login() {
           id: userData.id,
           apelido: userData.apelido,
           email: userData.email,
+          role: userData.role
         });
         console.log("Login realizado com sucesso!");
         navigate("/");

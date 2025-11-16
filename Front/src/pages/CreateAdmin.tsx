@@ -1,58 +1,54 @@
-  import { useState } from "react";
-  import { Button } from "@/components/ui/button";
-  import { Input } from "@/components/ui/input";
-  import { Label } from "@/components/ui/label";
-  import { Checkbox } from "@/components/ui/checkbox";
-  import { Link, useNavigate } from "react-router-dom";
-  import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
-  import { useAuth } from "../context/AuthContext";
-  import { User, Mail, Lock } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
+import { Link, useNavigate } from "react-router-dom";
+import { User, Mail, Lock } from "lucide-react";
 
-  export default function Cadastro() {
-    const [apelido, setNome] = useState("");
-    const [email, setEmail] = useState("");
-    const [senha, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [isAdmin, setIsAdmin] = useState(false);
-    const navigate = useNavigate();
-    const { login } = useAuth();
+const CreateAdmin = () => {
+  const [apelido, setApelido] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmSenha, setConfirmSenha] = useState("");
+  const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-      if (senha !== confirmPassword) {
-        alert("As senhas não coincidem!");
-        return;
+    if (senha !== confirmSenha) {
+      alert("As senhas não coincidem!");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/usuarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apelido,
+          email,
+          senha,
+          role: "ADMIN", // sempre ADMIN
+        }),
+      });
+
+      if (response.ok) {
+        alert("Administrador criado com sucesso!");
+        navigate("/"); // redirecione para onde quiser
+      } else {
+        const err = await response.json();
+        alert("Erro ao cadastrar admin: " + (err.message || response.statusText));
       }
+    } catch (error) {
+      alert("Erro de rede. Tente novamente.");
+    }
+  };
 
-      try {
-        const response = await fetch("/api/usuarios", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ apelido, email, senha, role: isAdmin? "ADMIN" : "USER" }),
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          login({
-            id: userData.id,
-            apelido: userData.apelido,
-            email: userData.email,
-            role: userData.role,
-          });
-          navigate("/");
-        } else {
-          const errorData = await response.json();
-          alert("Erro ao cadastrar: " + (errorData.message || response.statusText));
-        }
-      } catch {
-        alert("Erro de rede. Verifique sua conexão e tente novamente.");
-      }
-    };
-
-    return (
+  return (
     <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
-      {/*Pontos no background*/}
+
+      {/* Pontilhado do background */}
       <div
         className="absolute inset-0 opacity-30 pointer-events-none"
         style={{
@@ -62,7 +58,7 @@
         }}
       />
 
-      {/*Efeitos de luz suaves */}
+      {/* Efeitos de luz */}
       <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
       </div>
@@ -70,13 +66,14 @@
         <div className="absolute inset-0 bg-gradient-to-tl from-primary/25 via-primary/15 to-transparent rounded-full blur-3xl animate-pulse" />
       </div>
 
-      {/*Card principal de cadastro */}
+      {/* Card */}
       <div className="relative z-10 w-full max-w-sm bg-gradient-to-br from-primary via-primary to-primary/90 rounded-3xl shadow-2xl border border-accent/30 p-6 flex flex-col items-center justify-center overflow-hidden backdrop-blur-sm">
-        {/* Brilho interno*/}
+
+        {/* Brilho interno */}
         <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 rounded-3xl pointer-events-none" />
 
-        {/* Conteúdo */}
         <div className="relative z-10 w-full flex flex-col items-center">
+
           {/* Logo */}
           <Link to="/" className="hover:opacity-80 hover:scale-105 transition-all mb-4">
             <img
@@ -88,15 +85,16 @@
 
           {/* Título */}
           <h1 className="text-2xl font-bold text-white text-center mb-4 tracking-wide drop-shadow">
-            Crie sua conta
+            Criar Administrador
           </h1>
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="w-full space-y-3">
+
             {/* Nome */}
             <div className="space-y-1">
               <Label htmlFor="username" className="text-white/90 font-semibold text-sm">
-                Nome
+                Nome do Admin
               </Label>
               <div className="relative">
                 <User className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
@@ -104,9 +102,9 @@
                   id="username"
                   type="text"
                   value={apelido}
-                  onChange={(e) => setNome(e.target.value)}
-                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
-                  placeholder="Digite seu nome"
+                  onChange={(e) => setApelido(e.target.value)}
+                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 h-9 rounded-md text-sm"
+                  placeholder="Digite o nome"
                   required
                 />
               </div>
@@ -124,8 +122,8 @@
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
-                  placeholder="Digite seu email"
+                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 h-9 rounded-md text-sm"
+                  placeholder="Digite o email do admin"
                   required
                 />
               </div>
@@ -142,9 +140,9 @@
                   id="senha"
                   type="password"
                   value={senha}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
-                  placeholder="Digite sua senha"
+                  onChange={(e) => setSenha(e.target.value)}
+                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 h-9 rounded-md text-sm"
+                  placeholder="Digite a senha"
                   required
                 />
               </div>
@@ -152,18 +150,18 @@
 
             {/* Confirmar senha */}
             <div className="space-y-1">
-              <Label htmlFor="confirmPassword" className="text-white/90 font-semibold text-sm">
+              <Label htmlFor="confirmSenha" className="text-white/90 font-semibold text-sm">
                 Confirmar senha
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
                 <Input
-                  id="confirmPassword"
+                  id="confirmSenha"
                   type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50 h-9 rounded-md transition-all text-sm"
-                  placeholder="Confirme sua senha"
+                  value={confirmSenha}
+                  onChange={(e) => setConfirmSenha(e.target.value)}
+                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 h-9 rounded-md text-sm"
+                  placeholder="Confirme a senha"
                   required
                 />
               </div>
@@ -172,21 +170,16 @@
             {/* Botão */}
             <Button
               type="submit"
-              className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:shadow-accent/50 hover:bg-accent/90 transition-all cursor-pointer">
-              Criar conta
+              className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:bg-accent/90 transition-all"
+            >
+              Criar Administrador
             </Button>
 
-            {/* Link de login */}
-            <p className="text-center text-white/80 text-xs mt-1">
-              Já tem uma conta?{" "}
-              <Link to="/login"
-                className="text-accent font-semibold hover:underline hover:text-accent/80 cursor-pointer transition-all">
-                Faça login
-              </Link>
-            </p>
           </form>
         </div>
       </div>
     </div>
-    );
-  }
+  );
+}
+
+export default CreateAdmin;

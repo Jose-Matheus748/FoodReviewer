@@ -22,7 +22,7 @@ public class Usuario {
     private Long id;
 
     @NotBlank(message = "Username não pode ficar em branco")
-    private String username;
+    private String username; // Seria bom corrigir isso de userName para apelido dps
 
     @Email
     @Column(nullable = false, unique = true)
@@ -35,18 +35,21 @@ public class Usuario {
     @Column(name = "data_criacao", updatable = false)
     private LocalDateTime dataCriacao;
 
-    public Usuario(){
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role = UserRole.USER;
 
+    public Usuario(){
     }
 
-    public Usuario(Long id, String username, String email, String senha, LocalDateTime dataCriacao) {
+    public Usuario(Long id, String username, String email, String senha, LocalDateTime dataCriacao, UserRole role) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.senha = senha;
         this.dataCriacao = dataCriacao;
+        this.role = role;
     }
-
 
     //vou deixar os gets e sets mas n precisa pois o @getters e @setters acima do construtor já fazem ele automaticamente
     public Long getId() {
@@ -87,6 +90,14 @@ public class Usuario {
 
     public void setDataCriacao(LocalDateTime dataCriacao) {
         this.dataCriacao = dataCriacao;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role){
+        this.role = role;
     }
 
     // Getters e setters...

@@ -4,6 +4,7 @@ interface Usuario {
   id: number;
   apelido: string;
   email: string;
+  role: "USER" | "ADMIN";
 }
 
 interface AuthContextType {

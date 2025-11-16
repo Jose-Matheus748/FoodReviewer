@@ -9,7 +9,8 @@ import Cadastro from "./pages/Cadastro";
 import ProductDetails from "./pages/ProductDetails";
 import CreateReview from "./pages/CreateReview";
 import NotFound from "./pages/NotFound";
-import UpdateReview from "./pages/updateReview";
+import UpdateReview from "./pages/UpdateReview";
+import CreateAdmin from "./pages/CreateAdmin";
 
 
 const queryClient = new QueryClient();
@@ -29,7 +30,7 @@ const App = () => (
 
           {/* Rota para edição da avaliação */}
           <Route path="/produto/:id/avaliar/:reviewId" element={<UpdateReview />} />
-
+          <Route path="/admin/cadastrar" element={<CreateAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

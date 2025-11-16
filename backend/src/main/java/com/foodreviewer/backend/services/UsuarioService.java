@@ -1,5 +1,6 @@
 package com.foodreviewer.backend.services;
 
+import com.foodreviewer.backend.Entity.UserRole;
 import com.foodreviewer.backend.Entity.Usuario;
 import com.foodreviewer.backend.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +14,16 @@ import java.util.Optional;
 public class UsuarioService {
 
     private UsuarioDTO toDto(Usuario usuario){
-        return new UsuarioDTO(usuario.getId(), usuario.getUsername(), usuario.getEmail());
+        return UsuarioDTO.fromEntity(usuario);
     }
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
     public UsuarioDTO saveUsuario(Usuario usuario){
+        if (usuario.getRole() == null) {
+            usuario.setRole(UserRole.USER);
+        }
         return toDto(usuarioRepository.save(usuario));
     }
 
