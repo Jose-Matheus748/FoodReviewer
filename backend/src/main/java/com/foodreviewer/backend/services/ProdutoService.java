@@ -26,7 +26,6 @@ public class ProdutoService {
     public Optional<Produto> findById(Long id) {
         Optional<Produto> produtoOpt = produtoRepository.findById(id);
         produtoOpt.ifPresent(produto -> {
-            // força o carregamento das coleções lazy
             if (produto.getReviews() != null) produto.getReviews().size();
             if (produto.getIngredientes() != null) produto.getIngredientes().size();
         });
@@ -42,20 +41,52 @@ public class ProdutoService {
         return produtoRepository.findByNomeContainingIgnoreCase(nome);
     }
 
+    @Transactional
     public Optional<Produto> updateProduto(Produto updateProduto, Long id){
-        return Optional.of(produtoRepository.findById(id).map(produto -> {
-            produto.setNome(updateProduto.getNome());
-            produto.setMarca(updateProduto.getMarca());
-            produto.setTipo(updateProduto.getTipo());
-            produto.setPreco(updateProduto.getPreco());
-            produto.setAlergenicos(updateProduto.getAlergenicos());
-            produto.setDensidade(updateProduto.getDensidade());
-            produto.setDescricao(updateProduto.getDescricao());
-            produto.setDataCadastro(updateProduto.getDataCadastro());
-            produto.setIngredientes(updateProduto.getIngredientes());
-            produto.setPesoGramas(updateProduto.getPesoGramas());
-            produto.setTabelaNutricional(updateProduto.getTabelaNutricional());
-            return produtoRepository.save(produto);
-        }).orElseThrow(()-> new RuntimeException("Produto não existe")));
+
+        return Optional.of(
+                produtoRepository.findById(id).map(produto -> {
+
+                    // ---------- CAMPOS SIMPLES ----------
+                    produto.setNome(updateProduto.getNome());
+                    produto.setMarca(updateProduto.getMarca());
+                    produto.setTipo(updateProduto.getTipo());
+                    produto.setPreco(updateProduto.getPreco());
+                    produto.setAlergenicos(updateProduto.getAlergenicos());
+                    produto.setDensidade(updateProduto.getDensidade());
+                    produto.setDescricao(updateProduto.getDescricao());
+                    produto.setPesoGramas(updateProduto.getPesoGramas());
+
+                    // NÃO ATUALIZA dataCadastro → é gerado automaticamente
+
+                    // ---------- INGREDIENTES (N:N) ----------
+                    produto.getIngredientes().clear();
+                    if (updateProduto.getIngredientes() != null) {
+                        produto.getIngredientes().addAll(updateProduto.getIngredientes());
+                    }
+
+                    // ---------- TABELA NUTRICIONAL (1:1) ----------
+                    if (produto.getTabelaNutricional() != null && updateProduto.getTabelaNutricional() != null) {
+
+                        var tabela = produto.getTabelaNutricional();
+                        var nova = updateProduto.getTabelaNutricional();
+
+                        tabela.setCalorias(nova.getCalorias());
+                        tabela.setProteinas(nova.getProteinas());
+                        tabela.setCarboidratos(nova.getCarboidratos());
+                        tabela.setGordurasTotais(nova.getGordurasTotais());
+                        tabela.setGordurasSaturadas(nova.getGordurasSaturadas());
+                        tabela.setFibras(nova.getFibras());
+                        tabela.setSodio(nova.getSodio());
+                        tabela.setAcucares(nova.getAcucares());
+                        tabela.setOutros(nova.getOutros());
+                    }
+
+                    // NÃO ATUALIZA reviews → é responsabilidade do ReviewService
+
+                    return produtoRepository.save(produto);
+
+                }).orElseThrow(() -> new RuntimeException("Produto não existe"))
+        );
     }
 }

@@ -77,7 +77,7 @@ const Index = () => {
         {usuario?.role === "ADMIN" && (
           <div className="flex justify-center mt-8">
             <button
-              onClick={() => navigate("/cadastrar-produto")}
+              onClick={() => navigate("/cadastro-produto")}
               className="bg-[#8b009a] hover:bg-[#6d007a] text-white font-semibold py-2 px-6 rounded-lg shadow-md transition">
               Cadastrar Produto
             </button>
