@@ -7,16 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 
-import {
-  Package,
-  Tag,
-  FileText,
-  Weight,
-  FlaskConical,
-  List,
-  Image as ImageIcon,
-  DollarSign,
-} from "lucide-react";
+import {Package, Tag, FileText, Weight, FlaskConical, List, Image as ImageIcon, DollarSign, Utensils} from "lucide-react";
 
 export default function CadastroProduto() {
   const navigate = useNavigate();
@@ -29,9 +20,18 @@ export default function CadastroProduto() {
   const [preco, setPreco] = useState("");
   const [pesoGramas, setPesoGramas] = useState("");
   const [densidade, setDensidade] = useState("");
-
   const [ingredientes, setIngredientes] = useState<string[]>([""]);
   const [imagem, setImagem] = useState<File | null>(null);
+  const [calorias, setCalorias] = useState("");
+  const [proteinas, setProteinas] = useState("");
+  const [carboidratos, setCarboidratos] = useState("");
+  const [gordurasTotais, setGordurasTotais] = useState("");
+  const [gordurasSaturadas, setGordurasSaturadas] = useState("");
+  const [fibras, setFibras] = useState("");
+  const [sodio, setSodio] = useState("");
+  const [acucares, setAcucares] = useState("");
+  const [outros, setOutros] = useState("");
+
 
   const adicionarIngrediente = () =>
     setIngredientes((prev) => [...prev, ""]);
@@ -61,13 +61,48 @@ export default function CadastroProduto() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (preco && Number.isNaN(Number(preco.replace(",", ".")))) {
+      alert("Preço inválido.");
+      return;
+    }
+
+    if (pesoGramas && Number.isNaN(Number(pesoGramas.replace(",", ".")))) {
+      alert("Peso inválido.");
+      return;
+    }
+
+    if (densidade && Number.isNaN(Number(densidade.replace(",", ".")))) {
+      alert("Densidade inválida.");
+      return;
+    }
+
     // transforma ["a", "b"] em [{ nome: "a" }, ...]
-    const ingredientesArray = ingredientes
-      .filter((i) => i.trim() !== "")
-      .map((nome) => ({ nome }));
+    const ingredientesArray = ingredientes.filter((i) => i.trim() !== "").map((nome) => ({ nome }));
+
+    
+
+    const tabelaNutricionalObj: Record<string, number> = {};
+    const pushNumber = (key: string, value: string) => {
+      if (value != null && value.toString().trim() !== "") {
+        // parse para número (use parseFloat; backend recebe JSON com números/strings)
+        const n = Number(value.toString().replace(",", "."));
+        if (!Number.isNaN(n)) tabelaNutricionalObj[key] = n;
+      }
+    };
+
+    pushNumber("calorias", calorias);
+    pushNumber("proteinas", proteinas);
+    pushNumber("carboidratos", carboidratos);
+    pushNumber("gordurasTotais", gordurasTotais);
+    pushNumber("gordurasSaturadas", gordurasSaturadas);
+    pushNumber("fibras", fibras);
+    pushNumber("sodio", sodio);
+    pushNumber("acucares", acucares);
+    pushNumber("outros", outros);
 
     const formData = new FormData();
     formData.append("nome", nome);
+    
     if (descricao) formData.append("descricao", descricao);
     if (marca) formData.append("marca", marca);
 
@@ -81,7 +116,9 @@ export default function CadastroProduto() {
       formData.append("ingredientes", JSON.stringify(ingredientesArray));
     }
 
-    // NÃO enviar tabelaNutricional por agora, o backend aceita vazio
+    if (Object.keys(tabelaNutricionalObj).length > 0) {
+      formData.append("tabelaNutricional", JSON.stringify(tabelaNutricionalObj));
+    }
 
     if (imagem) {
       formData.append("imagem", imagem);
@@ -148,6 +185,40 @@ export default function CadastroProduto() {
               placeholder="Nome do produto"
               Icon={Package}
             />
+
+            {/* DESCRIÇÃO DO PRODUTO */}
+            <div className="space-y-1">
+              <Label className="text-white/90 font-semibold text-sm">Descrição</Label>
+
+              <div className="relative">
+                <FileText className="absolute left-3 top-3 text-accent/70 w-4 h-4" />
+                <textarea
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  placeholder="Descrição detalhada do produto"
+                  className="pl-9 pr-3 pt-2 pb-2 w-full bg-white/15 border border-accent/40 text-white
+                             placeholder:text-white/60 focus:border-accent focus:ring-1 focus:ring-accent/50
+                             rounded-md transition-all text-sm resize-none h-24"
+                />
+              </div>
+            </div>
+
+            {/* TABELA NUTRICIONAL - básico */}
+            <div className="space-y-1 bg-white/5 p-3 rounded-md border border-accent/20">
+              <h3 className="text-white/90 font-semibold text-sm mb-2">Tabela Nutricional (por porção)</h3>
+
+              <div className="grid grid-cols-2 gap-2">
+                <CampoIcone label="Calorias" valor={calorias} setValor={setCalorias} placeholder="kcal" Icon={Utensils} type="number" />
+                <CampoIcone label="Proteínas (g)" valor={proteinas} setValor={setProteinas} placeholder="g" Icon={Utensils} type="number" />
+                <CampoIcone label="Carboidratos (g)" valor={carboidratos} setValor={setCarboidratos} placeholder="g" Icon={Utensils} type="number" />
+                <CampoIcone label="Gorduras Totais (g)" valor={gordurasTotais} setValor={setGordurasTotais} placeholder="g" Icon={Utensils} type="number" />
+                <CampoIcone label="Gorduras Saturadas (g)" valor={gordurasSaturadas} setValor={setGordurasSaturadas} placeholder="g" Icon={Utensils} type="number" />
+                <CampoIcone label="Fibras (g)" valor={fibras} setValor={setFibras} placeholder="g" Icon={Utensils} type="number" />
+                <CampoIcone label="Açúcares (g)" valor={acucares} setValor={setAcucares} placeholder="g" Icon={Utensils} type="number" />
+                <CampoIcone label="Sódio (mg)" valor={sodio} setValor={setSodio} placeholder="mg" Icon={Utensils} type="number" />
+                <CampoIcone label="Outros" valor={outros} setValor={setOutros} placeholder="valor" Icon={Utensils } type="number" />
+              </div>
+            </div>
 
             <CampoIcone
               label="Marca"

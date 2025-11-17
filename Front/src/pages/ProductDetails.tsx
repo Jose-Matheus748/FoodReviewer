@@ -373,8 +373,7 @@ const ProductDetails = () => {
               size="icon"
               disabled
               title="Faça login para avaliar"
-              className="rounded-full bg-gray-300 text-gray-500 cursor-not-allowed"
-            >
+              className="rounded-full bg-gray-300 text-gray-500 cursor-not-allowed">
               <Plus className="w-6 h-6" />
             </Button>
           )}
@@ -391,8 +390,7 @@ const ProductDetails = () => {
             {reviews.map((review) => (
               <Card
                 key={review.id}
-                className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl relative"
-              >
+                className="p-5 bg-white/80 backdrop-blur-md border border-gray-200 shadow-md hover:shadow-accent/30 transition-shadow rounded-xl relative">
                 {usuario && review.userId === usuario.id && (
                   <div className="absolute top-4 right-4 flex gap-2">
                   
