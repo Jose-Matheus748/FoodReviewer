@@ -3,6 +3,7 @@ package com.foodreviewer.backend.Entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,7 +22,7 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Username não pode ficar em branco")
+    @NotNull(message = "Username não pode ficar em branco")
     private String username; // Seria bom corrigir isso de userName para apelido dps
 
     @Email

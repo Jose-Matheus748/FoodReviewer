@@ -24,6 +24,10 @@ public class UsuarioService {
         if (usuario.getRole() == null) {
             usuario.setRole(UserRole.USER);
         }
+        if (usuario.getUsername() == null || usuario.getUsername().isBlank()) {
+            usuario.setUsername(RandomNameGenerator.gerarUsername());
+        }
+
         return toDto(usuarioRepository.save(usuario));
     }
 
