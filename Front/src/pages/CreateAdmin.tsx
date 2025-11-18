@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
+import bgImage from "@/assets/form-bg.png";
 
 const CreateAdmin = () => {
   const [apelido, setApelido] = useState("");
@@ -46,17 +47,9 @@ const CreateAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
-
-      {/* Pontilhado do background */}
-      <div
-        className="absolute inset-0 opacity-30 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 2px 2px, rgba(89, 37, 179, 0.81) 1px, transparent 0)",
-          backgroundSize: "40px 40px",
-        }}
-      />
+    <div
+      className="min-h-screen relative flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
+        style={{ backgroundImage: `url(${bgImage})`,}}>
 
       {/* Efeitos de luz */}
       <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
