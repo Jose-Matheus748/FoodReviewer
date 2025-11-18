@@ -74,7 +74,7 @@ const Index = () => {
         </section>
 
         {/* Botão visível apenas para ADMIN */}
-        {usuario?.role === "ADMIN" && (
+        {(usuario?.role === "ADMIN" || usuario?.role === "MESTRE") && (
           <div className="flex justify-center mt-8">
             <button
               onClick={() => navigate("/cadastro-produto")}

@@ -274,11 +274,6 @@ const ProductDetails = () => {
                   <strong>Peso:</strong> {productData.pesoGramas} g
                 </p>
               )}
-              {productData.densidade && (
-                <p>
-                  <strong>Densidade:</strong> {productData.densidade}
-                </p>
-              )}
             </div>
 
             {/* Avaliação média */}

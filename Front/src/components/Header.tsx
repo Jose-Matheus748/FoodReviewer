@@ -77,7 +77,7 @@ export const Header = () => {
 
         {/* 👤 Login / Logout */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          {usuario?.role === "ADMIN" && (
+          {usuario?.role === "MESTRE" && (
           <Link to="/admin/cadastrar">
             <Button
               size="sm"

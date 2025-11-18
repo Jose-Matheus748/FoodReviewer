@@ -7,17 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 
-import {
-  Package,
-  Tag,
-  FileText,
-  Weight,
-  FlaskConical,
-  List,
-  Image as ImageIcon,
-  DollarSign,
-  Utensils,
-} from "lucide-react";
+import {Package, Tag, FileText, Weight, FlaskConical, List, Image as ImageIcon, DollarSign, Utensils, } from "lucide-react";
 
 export default function CadastroProduto() {
   const navigate = useNavigate();
@@ -29,7 +19,6 @@ export default function CadastroProduto() {
   const [tipo, setTipo] = useState("");
   const [preco, setPreco] = useState("");
   const [pesoGramas, setPesoGramas] = useState("");
-  const [densidade, setDensidade] = useState("");
   const [ingredientes, setIngredientes] = useState<string[]>([""]);
   const [imagem, setImagem] = useState<File | null>(null);
 
@@ -41,7 +30,6 @@ export default function CadastroProduto() {
   const [fibras, setFibras] = useState("");
   const [sodio, setSodio] = useState("");
   const [acucares, setAcucares] = useState("");
-  const [outros, setOutros] = useState("");
 
   const adicionarIngrediente = () => setIngredientes((prev) => [...prev, ""]);
 
@@ -52,7 +40,7 @@ export default function CadastroProduto() {
   };
 
   // acesso restrito
-  if (!usuario || usuario.role !== "ADMIN") {
+  if (!usuario || usuario.role == "USER") {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center">
         <h1 className="text-3xl font-bold text-red-600">Acesso negado</h1>
@@ -80,11 +68,6 @@ export default function CadastroProduto() {
       return;
     }
 
-    if (densidade && Number.isNaN(Number(densidade.replace(",", ".")))) {
-      alert("Densidade inválida.");
-      return;
-    }
-
     const ingredientesArray = ingredientes
       .filter((i) => i.trim() !== "")
       .map((nome) => ({ nome }));
@@ -105,7 +88,6 @@ export default function CadastroProduto() {
     pushNumber("fibras", fibras);
     pushNumber("sodio", sodio);
     pushNumber("acucares", acucares);
-    pushNumber("outros", outros);
 
     const formData = new FormData();
     formData.append("nome", nome);
@@ -114,7 +96,6 @@ export default function CadastroProduto() {
     if (marca) formData.append("marca", marca);
     if (tipo) formData.append("tipo", tipo);
     if (pesoGramas) formData.append("pesoGramas", pesoGramas.toString());
-    if (densidade) formData.append("densidade", densidade.toString());
     if (preco) formData.append("preco", preco.toString());
     if (ingredientesArray.length > 0)
       formData.append("ingredientes", JSON.stringify(ingredientesArray));
@@ -195,7 +176,6 @@ export default function CadastroProduto() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <CampoIcone label="Preço" valor={preco} setValor={setPreco} placeholder="9.90" type="number" Icon={DollarSign} />
               <CampoIcone label="Peso (g)" valor={pesoGramas} setValor={setPesoGramas} placeholder="400" type="number" Icon={Weight} />
-              <CampoIcone label="Densidade" valor={densidade} setValor={setDensidade} placeholder="50%" Icon={FlaskConical} />
             </div>
 
             {/* DESCRIÇÃO */}
@@ -231,7 +211,6 @@ export default function CadastroProduto() {
                 <CampoIcone label="Fibras (g)" valor={fibras} setValor={setFibras} placeholder="g" type="number" Icon={Utensils} />
                 <CampoIcone label="Açúcares (g)" valor={acucares} setValor={setAcucares} placeholder="g" type="number" Icon={Utensils} />
                 <CampoIcone label="Sódio (mg)" valor={sodio} setValor={setSodio} placeholder="mg" type="number" Icon={Utensils} />
-                <CampoIcone label="Outros" valor={outros} setValor={setOutros} placeholder="valor" type="number" Icon={Utensils} />
               </div>
             </div>
 

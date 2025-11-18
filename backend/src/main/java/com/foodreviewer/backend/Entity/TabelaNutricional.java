@@ -47,7 +47,7 @@ public class TabelaNutricional {
     @NotNull @DecimalMin("0.00")
     private BigDecimal acucares;
 
-    @NotNull @DecimalMin("0.00")
+    @DecimalMin("0.00")
     private BigDecimal outros;
 
     // Getters e setters omitidos por brevidade

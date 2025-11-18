@@ -91,25 +91,6 @@ const CreateAdmin = () => {
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="w-full space-y-3">
 
-            {/* Nome */}
-            <div className="space-y-1">
-              <Label htmlFor="username" className="text-white/90 font-semibold text-sm">
-                Nome do Admin
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-2.5 text-accent/70 w-4 h-4" />
-                <Input
-                  id="username"
-                  type="text"
-                  value={apelido}
-                  onChange={(e) => setApelido(e.target.value)}
-                  className="pl-9 bg-white/15 border border-accent/40 text-white placeholder:text-white/60 h-9 rounded-md text-sm"
-                  placeholder="Digite o nome"
-                  required
-                />
-              </div>
-            </div>
-
             {/* Email */}
             <div className="space-y-1">
               <Label htmlFor="email" className="text-white/90 font-semibold text-sm">
@@ -170,8 +151,7 @@ const CreateAdmin = () => {
             {/* Botão */}
             <Button
               type="submit"
-              className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:bg-accent/90 transition-all"
-            >
+              className="w-full h-9 bg-accent text-primary font-bold text-sm rounded-md shadow-md hover:scale-[1.03] hover:bg-accent/90 transition-all">
               Criar Administrador
             </Button>
 
