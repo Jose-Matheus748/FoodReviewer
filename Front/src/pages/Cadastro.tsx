@@ -6,7 +6,7 @@
   import { Link, useNavigate } from "react-router-dom";
   import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
   import { useAuth } from "../context/AuthContext";
-  import { User, Mail, Lock } from "lucide-react";
+  import { Mail, Lock } from "lucide-react";
   import bgImage from "@/assets/form-bg.png";
 
 

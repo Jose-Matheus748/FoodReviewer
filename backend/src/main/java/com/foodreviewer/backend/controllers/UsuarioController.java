@@ -26,7 +26,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
     }
 
-    // Criar ADMIN (exclusivo)
+    // Criar ADMIN (exclusivo pra admin)
     @PostMapping("/admin")
     public ResponseEntity<UsuarioDTO> criarAdmin(@Valid @RequestBody Usuario usuario) {
         usuario.setRole(UserRole.ADMIN); // força ADMIN

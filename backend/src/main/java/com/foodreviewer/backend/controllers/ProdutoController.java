@@ -31,9 +31,7 @@ public class ProdutoController {
         this.objectMapper = new ObjectMapper();
     }
 
-    // ============================================================
-    // CRIAÇÃO DE PRODUTO (multipart/form-data ✓)
-    // ============================================================
+    //criando o produto
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> criarProduto(
             @RequestParam("nome") String nome,
@@ -56,10 +54,7 @@ public class ProdutoController {
             produto.setTipo(tipo);
             produto.setPesoGramas(pesoGramas);
             produto.setDensidade(densidade);
-
-            // ============================================================
-            // PROCESSAR INGREDIENTES (frontend envia somente nomes)
-            // ============================================================
+            //tratamento pq o front manda so nomes
             if (ingredientesJson != null && !ingredientesJson.isBlank()) {
 
                 List<Map<String, String>> ingredientesList =
@@ -80,9 +75,7 @@ public class ProdutoController {
                 produto.setIngredientes(resultado);
             }
 
-            // ============================================================
-            // TABELA NUTRICIONAL JSON
-            // ============================================================
+            //setando tabela nutricional
             if (tabelaNutricionalJson != null && !tabelaNutricionalJson.isBlank()) {
                 TabelaNutricional tabela =
                         objectMapper.readValue(tabelaNutricionalJson, TabelaNutricional.class);
@@ -91,9 +84,7 @@ public class ProdutoController {
                 produto.setTabelaNutricional(tabela);
             }
 
-            // ============================================================
-            // IMAGEM
-            // ============================================================
+            //enviando a imagem
             if (imagem != null && !imagem.isEmpty()) {
                 produto.setImagem(imagem.getBytes());
             }
@@ -107,9 +98,7 @@ public class ProdutoController {
         }
     }
 
-    // ============================================================
-    // CRIAÇÃO POR JSON (sem imagem)
-    // ============================================================
+    //json sem imagem (podemos tirar dps)
     @PostMapping(value = "/json", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> criarProdutoViaJson(@Valid @RequestBody Produto produto) {
 
@@ -142,10 +131,6 @@ public class ProdutoController {
             return ResponseEntity.badRequest().body("Erro ao cadastrar produto via JSON: " + e.getMessage());
         }
     }
-
-    // ============================================================
-    // CRUD BÁSICO
-    // ============================================================
 
     @GetMapping
     public ResponseEntity<List<Produto>> findAll() {

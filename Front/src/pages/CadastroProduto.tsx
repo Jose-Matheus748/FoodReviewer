@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import bgImage from "@/assets/form-bg.png";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 
-import {Package, Tag, FileText, Weight, FlaskConical, List, Image as ImageIcon, DollarSign, Utensils, } from "lucide-react";
+import {Package, Tag, FileText, Weight, List, Image as ImageIcon, DollarSign, Utensils, } from "lucide-react";
 
 export default function CadastroProduto() {
   const navigate = useNavigate();
@@ -54,7 +54,6 @@ export default function CadastroProduto() {
     );
   }
 
-  // SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -166,7 +165,7 @@ export default function CadastroProduto() {
               <CampoIcone label="Tipo" valor={tipo} setValor={setTipo} placeholder="Ex: Achocolatado" Icon={FileText} />
             </div>
 
-            {/* Linha 2: Preço / Peso / Densidade */}
+            {/* Linha 2: Preço / Peso*/}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <CampoIcone label="Preço" valor={preco} setValor={setPreco} placeholder="9.90" type="number" Icon={DollarSign} />
               <CampoIcone label="Peso (g)" valor={pesoGramas} setValor={setPesoGramas} placeholder="400" type="number" Icon={Weight} />
@@ -256,8 +255,7 @@ export default function CadastroProduto() {
             <Button
               type="submit"
               className="w-full h-10 bg-accent text-primary font-bold text-sm rounded-md shadow-md 
-                hover:scale-[1.03] hover:bg-accent/90 hover:shadow-accent/50 transition-all"
-            >
+                hover:scale-[1.03] hover:bg-accent/90 hover:shadow-accent/50 transition-all">
               Cadastrar Produto
             </Button>
           </form>

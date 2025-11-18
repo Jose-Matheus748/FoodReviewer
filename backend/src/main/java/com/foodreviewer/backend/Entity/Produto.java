@@ -50,11 +50,11 @@ public class Produto {
     @Column(name = "data_cadastro", updatable = false)
     private LocalDateTime dataCadastro;
 
-    // -------- TABELA NUTRICIONAL --------
+    // tabela nutricional
     @OneToOne(mappedBy = "produto", cascade = CascadeType.ALL)
     private TabelaNutricional tabelaNutricional;
 
-    // -------- INGREDIENTES (N:N) --------
+    // ingredientes(relaçao N:N)
     @ManyToMany
     @JoinTable(
             name = "produto_ingrediente",
@@ -67,13 +67,13 @@ public class Produto {
     @ElementCollection
     private List<String> alergenicos = new ArrayList<>();
 
-    // -------- IMAGEM --------
+    // imagem
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @JsonIgnore
     private byte[] imagem;
 
-    // -------- REVIEWS --------
+    // reviews do produto
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Review> reviews = new ArrayList<>();

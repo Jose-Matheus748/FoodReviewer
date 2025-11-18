@@ -46,8 +46,7 @@ public class ProdutoService {
 
         return Optional.of(
                 produtoRepository.findById(id).map(produto -> {
-
-                    // ---------- CAMPOS SIMPLES ----------
+                    //atributos normais
                     produto.setNome(updateProduto.getNome());
                     produto.setMarca(updateProduto.getMarca());
                     produto.setTipo(updateProduto.getTipo());
@@ -57,15 +56,13 @@ public class ProdutoService {
                     produto.setDescricao(updateProduto.getDescricao());
                     produto.setPesoGramas(updateProduto.getPesoGramas());
 
-                    // NÃO ATUALIZA dataCadastro → é gerado automaticamente
-
-                    // ---------- INGREDIENTES (N:N) ----------
+                    //ingredientes
                     produto.getIngredientes().clear();
                     if (updateProduto.getIngredientes() != null) {
                         produto.getIngredientes().addAll(updateProduto.getIngredientes());
                     }
 
-                    // ---------- TABELA NUTRICIONAL (1:1) ----------
+                    // tabela nutricional
                     if (produto.getTabelaNutricional() != null && updateProduto.getTabelaNutricional() != null) {
 
                         var tabela = produto.getTabelaNutricional();
@@ -82,7 +79,7 @@ public class ProdutoService {
                         tabela.setOutros(nova.getOutros());
                     }
 
-                    // NÃO ATUALIZA reviews → é responsabilidade do ReviewService
+                    // aq a gente nao atualiza as reviews pq isso é responsabilidade do ReviewService
 
                     return produtoRepository.save(produto);
 
