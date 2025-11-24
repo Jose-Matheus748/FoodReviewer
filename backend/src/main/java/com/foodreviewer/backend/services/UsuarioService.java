@@ -4,10 +4,12 @@ import com.foodreviewer.backend.Entity.UserRole;
 import com.foodreviewer.backend.Entity.Usuario;
 import com.foodreviewer.backend.dto.UsuarioDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.foodreviewer.backend.repositories.UsuarioRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -60,10 +62,20 @@ public class UsuarioService {
     }
 
     // método de login
-    public Optional<UsuarioDTO> login(String email, String senha) {
+    public ResponseEntity<?> login(String email, String senha) {
+
         return usuarioRepository.findByEmail(email)
-                // Comparação de senha simples (sem criptografia)
-                .filter(usuario -> usuario.getSenha().equals(senha))
-                .map(this::toDto);
+                .map(usuario -> {
+                    if (!usuario.getSenha().equals(senha)) {
+                        return ResponseEntity.status(401).body(Map.of(
+                                "message", "Senha incorreta"
+                        ));
+                    }
+
+                    return ResponseEntity.ok(UsuarioDTO.fromEntity(usuario));
+                })
+                .orElseGet(() -> ResponseEntity.status(404).body(Map.of(
+                        "message", "Usuário não encontrado"
+                )));
     }
 }

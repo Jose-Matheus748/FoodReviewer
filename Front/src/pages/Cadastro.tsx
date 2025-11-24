@@ -8,6 +8,8 @@
   import { useAuth } from "../context/AuthContext";
   import { Mail, Lock } from "lucide-react";
   import bgImage from "@/assets/form-bg.png";
+  import { AlertSuccess } from "@/components/alerts/AlertSuccess";
+  import { AlertError } from "@/components/alerts/AlertError";
 
 
   export default function Cadastro() {
@@ -18,12 +20,19 @@
     const [isAdmin, setIsAdmin] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
+    const [alertSuccess, setAlertSuccess] = useState("");
+    const [alertError, setAlertError] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
 
+      if (senha.length < 6) {
+        setAlertError("A senha deve ter pelo menos 6 caracteres.");
+        return;
+      }
+
       if (senha !== confirmPassword) {
-        alert("As senhas não coincidem!");
+        setAlertError("As senhas não coincidem!");
         return;
       }
 
@@ -45,10 +54,10 @@
           navigate("/");
         } else {
           const errorData = await response.json();
-          alert("Erro ao cadastrar: " + (errorData.message || response.statusText));
+          setAlertError("Erro ao cadastrar: " + (errorData.message || response.statusText));
         }
       } catch {
-        alert("Erro de rede. Verifique sua conexão e tente novamente.");
+        setAlertError("Erro de rede. Verifique sua conexão e tente novamente.");
       }
     };
 
@@ -56,6 +65,17 @@
     <div
       className="min-h-screen relative flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
         style={{ backgroundImage: `url(${bgImage})`,}}>
+          <AlertSuccess
+            open={!!alertSuccess}
+            onClose={() => setAlertSuccess("")}
+            message={alertSuccess}
+          />
+
+          <AlertError
+            open={!!alertError}
+            onClose={() => setAlertError("")}
+            message={alertError}
+          />
       {/*Efeitos de luz suaves */}
       <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />

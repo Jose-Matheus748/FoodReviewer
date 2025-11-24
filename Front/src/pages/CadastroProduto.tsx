@@ -6,6 +6,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import bgImage from "@/assets/form-bg.png";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
+import { AlertSuccess } from "@/components/alerts/AlertSuccess";
+import { AlertError } from "@/components/alerts/AlertError";
 
 import {Package, Tag, FileText, Weight, List, Image as ImageIcon, DollarSign, Utensils, } from "lucide-react";
 
@@ -21,6 +23,8 @@ export default function CadastroProduto() {
   const [pesoGramas, setPesoGramas] = useState("");
   const [ingredientes, setIngredientes] = useState<string[]>([""]);
   const [imagem, setImagem] = useState<File | null>(null);
+  const [alertSuccess, setAlertSuccess] = useState("");
+  const [alertError, setAlertError] = useState("");
 
   const [calorias, setCalorias] = useState("");
   const [proteinas, setProteinas] = useState("");
@@ -58,12 +62,12 @@ export default function CadastroProduto() {
     e.preventDefault();
 
     if (preco && Number.isNaN(Number(preco.replace(",", ".")))) {
-      alert("Preço inválido.");
+      setAlertError("Preço inválido.");
       return;
     }
 
     if (pesoGramas && Number.isNaN(Number(pesoGramas.replace(",", ".")))) {
-      alert("Peso inválido.");
+      setAlertError("Peso inválido.");
       return;
     }
 
@@ -112,15 +116,15 @@ export default function CadastroProduto() {
       });
 
       if (!res.ok) {
-        alert("Erro ao cadastrar produto.");
+        setAlertError("Erro ao cadastrar produto.");
         return;
       }
 
-      alert("Produto cadastrado com sucesso!");
-      navigate("/");
+      setAlertSuccess("Produto cadastrado com sucesso!");
+      setTimeout(() => navigate("/"), 1200);
     } catch (err) {
       console.error(err);
-      alert("Erro ao conectar ao servidor.");
+      setAlertError("Erro ao conectar ao servidor.");
     }
   };
 
@@ -128,7 +132,17 @@ export default function CadastroProduto() {
     <div
       className="min-h-screen relative flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
         style={{ backgroundImage: `url(${bgImage})`,}}>
+          <AlertSuccess
+            open={!!alertSuccess}
+            onClose={() => setAlertSuccess("")}
+            message={alertSuccess}
+          />
 
+          <AlertError
+            open={!!alertError}
+            onClose={() => setAlertError("")}
+            message={alertError}
+          />
       <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
       </div>

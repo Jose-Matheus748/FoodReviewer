@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -35,9 +37,7 @@ public class UsuarioController {
 
     // Login
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return usuarioService.login(loginRequest.email(), loginRequest.senha())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).build());
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return usuarioService.login(loginRequest.email(), loginRequest.senha());
     }
 }

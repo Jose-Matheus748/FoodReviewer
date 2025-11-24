@@ -6,6 +6,8 @@ import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 import bgImage from "@/assets/form-bg.png";
+import { AlertSuccess } from "@/components/alerts/AlertSuccess";
+import { AlertError } from "@/components/alerts/AlertError";
 
 const CreateAdmin = () => {
   const [apelido, setApelido] = useState("");
@@ -13,12 +15,14 @@ const CreateAdmin = () => {
   const [senha, setSenha] = useState("");
   const [confirmSenha, setConfirmSenha] = useState("");
   const navigate = useNavigate();
+  const [alertSuccess, setAlertSuccess] = useState("");
+  const [alertError, setAlertError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (senha !== confirmSenha) {
-      alert("As senhas não coincidem!");
+      setAlertError("As senhas não coincidem!");
       return;
     }
 
@@ -30,19 +34,19 @@ const CreateAdmin = () => {
           apelido,
           email,
           senha,
-          role: "ADMIN", // sempre ADMIN
+          role: "ADMIN",
         }),
       });
 
       if (response.ok) {
-        alert("Administrador criado com sucesso!");
-        navigate("/"); // redirecione para onde quiser
+        setAlertSuccess("Administrador criado com sucesso!");
+        setTimeout(() => navigate("/"), 1200);
       } else {
         const err = await response.json();
-        alert("Erro ao cadastrar admin: " + (err.message || response.statusText));
+        setAlertError("Erro ao cadastrar admin: " + (err.message || response.statusText))
       }
     } catch (error) {
-      alert("Erro de rede. Tente novamente.");
+      setAlertError("Erro de rede. Tente novamente");
     }
   };
 
@@ -50,7 +54,17 @@ const CreateAdmin = () => {
     <div
       className="min-h-screen relative flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
         style={{ backgroundImage: `url(${bgImage})`,}}>
+          <AlertSuccess
+            open={!!alertSuccess}
+            onClose={() => setAlertSuccess("")}
+            message={alertSuccess}
+          />
 
+          <AlertError
+            open={!!alertError}
+            onClose={() => setAlertError("")}
+            message={alertError}
+          />
       {/* Efeitos de luz */}
       <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />
