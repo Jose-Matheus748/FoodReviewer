@@ -13,7 +13,7 @@
 
 
   export default function Cadastro() {
-    const [apelido, setNome] = useState("");
+    const [apelido, setApelido] = useState("");
     const [email, setEmail] = useState("");
     const [senha, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -40,7 +40,7 @@
         const response = await fetch("/api/usuarios", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ apelido, email, senha, role: isAdmin? "ADMIN" : "USER" }),
+          body: JSON.stringify({ apelido, email, senha, role: "USER"}),
         });
 
         if (response.ok) {

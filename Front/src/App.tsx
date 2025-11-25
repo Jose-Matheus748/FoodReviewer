@@ -15,7 +15,7 @@ import CreateAdmin from "./pages/CreateAdmin";
 import CadastroProduto from "./pages/CadastroProduto";
 import BuscarProdutos from "./pages/BuscarProdutos";
 
-import { AuthProvider } from "./context/AuthContext"; // <-- IMPORTANTE
+import { AuthProvider } from "./context/AuthContext";
 
 const queryClient = new QueryClient();
 
@@ -24,24 +24,28 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+
       <AuthProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
+
             <Route path="/produto/:id" element={<ProductDetails />} />
             <Route path="/produto/:id/avaliar" element={<CreateReview />} />
-            <Route path="/cadastro-produto" element={<CadastroProduto />} />
-
             <Route path="/produto/:id/avaliar/:reviewId" element={<UpdateReview />} />
-            <Route path="/admin/cadastrar" element={<CreateAdmin />} />
+            <Route path="/cadastro-produto" element={<CadastroProduto />} />
             <Route path="/buscar-produtos" element={<BuscarProdutos />} />
+
+            <Route path="/admin/cadastrar" element={<CreateAdmin />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
+
     </TooltipProvider>
   </QueryClientProvider>
 );

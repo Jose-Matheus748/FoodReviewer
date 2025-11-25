@@ -3,39 +3,50 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Search, Package } from "lucide-react";
+import { AlertError } from "@/components/alerts/AlertError";
+
+
+type Produto = {
+  id: number;
+  nome: string;
+  marca?: string;
+  preco?: number;
+};
 
 export default function BuscarProdutos() {
   const [nome, setNome] = useState("");
-  const [resultados, setResultados] = useState([]);
-  const [erro, setErro] = useState("");
+  const [resultados, setResultados] = useState<Produto[]>([]);
   const [loading, setLoading] = useState(false);
+  const [alertError, setAlertError] = useState("");
+
 
   const buscar = async () => {
     if (!nome.trim()) return;
 
-    setErro("");
+    setAlertError("");
     setLoading(true);
 
     try {
-      const res = await fetch(`http://localhost:8080/produtos/search?nome=${nome}`);
+      const res = await fetch(`/api/produtos/search?nome=${encodeURIComponent(nome)}`);
 
       if (!res.ok) {
-        setErro("Erro ao buscar produtos.");
-        setLoading(false);
+        setAlertError("Erro ao buscar produtos.");
         return;
       }
 
-      const data = await res.json();
+      const data: Produto[] = await res.json();
       setResultados(data);
-    } catch (e) {
-      setErro("Falha ao conectar ao servidor.");
-    }
 
-    setLoading(false);
+    } catch (e) {
+      setAlertError("Falha ao conectar ao servidor.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center pt-20 px-4">
+      <AlertError open={!!alertError} onClose={() => setAlertError("")} message={alertError}/>
 
       <h1 className="text-2xl font-bold text-white mb-6">
         Buscar Produtos
@@ -61,13 +72,11 @@ export default function BuscarProdutos() {
         >
           {loading ? "Buscando..." : "Buscar"}
         </Button>
-
-        {erro && <p className="text-red-400 text-sm">{erro}</p>}
       </div>
 
       {/* Resultados */}
       <div className="w-full max-w-2xl mt-10 space-y-4">
-        {resultados.map((produto: any) => (
+        {resultados.map((produto) => (
           <div 
             key={produto.id}
             className="bg-white/10 border border-white/20 rounded-lg p-4 flex items-center gap-4"
