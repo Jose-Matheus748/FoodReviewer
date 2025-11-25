@@ -13,6 +13,7 @@ import NotFound from "./pages/NotFound";
 import UpdateReview from "./pages/UpdateReview";
 import CreateAdmin from "./pages/CreateAdmin";
 import CadastroProduto from "./pages/CadastroProduto";
+import BuscarProdutos from "./pages/BuscarProdutos";
 
 import { AuthProvider } from "./context/AuthContext"; // <-- IMPORTANTE
 
@@ -35,6 +36,7 @@ const App = () => (
 
             <Route path="/produto/:id/avaliar/:reviewId" element={<UpdateReview />} />
             <Route path="/admin/cadastrar" element={<CreateAdmin />} />
+            <Route path="/buscar-produtos" element={<BuscarProdutos />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
