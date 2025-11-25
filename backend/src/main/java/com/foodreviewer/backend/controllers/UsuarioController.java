@@ -1,5 +1,6 @@
 package com.foodreviewer.backend.controllers;
 
+import com.foodreviewer.backend.Entity.UserRole;
 import com.foodreviewer.backend.Entity.Usuario;
 import com.foodreviewer.backend.dto.UsuarioDTO;
 import com.foodreviewer.backend.dto.LoginRequest; // Novo import
@@ -9,26 +10,34 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/usuarios" )
+@RequestMapping("/usuarios")
 public class UsuarioController {
-    private UsuarioService usuarioService;
+
+    private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
     }
 
+    // Criar usuário normal
     @PostMapping
     public ResponseEntity<UsuarioDTO> criarUsuario(@Valid @RequestBody Usuario usuario){
-        System.out.println("Recebido Usuario: " + usuario.getEmail());
         return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
     }
 
-    // Novo endpoint de login
+    // Criar ADMIN (exclusivo pra admin)
+    @PostMapping("/admin")
+    public ResponseEntity<UsuarioDTO> criarAdmin(@Valid @RequestBody Usuario usuario) {
+        usuario.setRole(UserRole.ADMIN); // força ADMIN
+        return ResponseEntity.ok(usuarioService.saveUsuario(usuario));
+    }
+
+    // Login
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return usuarioService.login(loginRequest.email(), loginRequest.senha())
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(401).build()); // 401 Unauthorized
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return usuarioService.login(loginRequest.email(), loginRequest.senha());
     }
 }

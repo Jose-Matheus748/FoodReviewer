@@ -31,7 +31,7 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "produto_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("produto-reviews")
     private Produto produto;
 
     @CreationTimestamp

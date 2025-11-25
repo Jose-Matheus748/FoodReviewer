@@ -1,5 +1,6 @@
 package com.foodreviewer.backend.dto;
 
+<<<<<<< HEAD
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -50,5 +51,23 @@ public class UsuarioDTO {
 
     public void setEmail(String email) {
         this.email = email;
+=======
+import com.foodreviewer.backend.Entity.UserRole;
+import com.foodreviewer.backend.Entity.Usuario;
+
+public record UsuarioDTO(
+        Long id,
+        String apelido,
+        String email,
+        UserRole role
+) {
+    public static UsuarioDTO fromEntity(Usuario usuario) {
+        return new UsuarioDTO(
+                usuario.getId(),
+                usuario.getUsername(),
+                usuario.getEmail(),
+                usuario.getRole()
+        );
+>>>>>>> feat/telasPesquisa
     }
 }

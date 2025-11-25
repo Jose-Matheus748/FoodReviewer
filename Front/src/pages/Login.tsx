@@ -6,12 +6,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import logoFoodReviewer from "@/assets/logo-foodreviewer.png";
 import { Mail, Lock } from "lucide-react";
+import bgImage from "@/assets/form-bg.png";
+import { AlertSuccess } from "@/components/alerts/AlertSuccess";
+import { AlertError } from "@/components/alerts/AlertError";
 
 export default function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [alertSuccess, setAlertSuccess] = useState("");
+  const [alertError, setAlertError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,30 +34,54 @@ export default function Login() {
           id: userData.id,
           apelido: userData.apelido,
           email: userData.email,
+          role: userData.role
         });
         console.log("Login realizado com sucesso!");
         navigate("/");
       } else {
-        const errorData = await response.json();
-        alert("Erro ao fazer login: " + (errorData.message || response.statusText));
+        let errorData: { message?: string } = {};
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = {};
+        }
+
+      if (response.status === 404) {
+        setAlertError("Usuário não encontrado.");
+      } 
+      else if (response.status === 401) {
+        setAlertError("Senha incorreta.");
       }
-    } catch (error) {
-      console.error("Erro de rede/conexão:", error);
-      alert("Erro de rede. Verifique sua conexão e tente novamente.");
+      else if (response.status === 400) {
+        setAlertError(errorData.message || "Requisição inválida.");
+      }
+      else {
+        setAlertError(errorData.message || "Erro ao fazer login.");
+      }
+
+      return;
     }
-  };
+  } catch (error) {
+    console.error("Erro de rede/conexão:", error);
+    setAlertError("Erro de rede. Verifique sua conexão e tente novamente.");
+  }
+};
 
   return (
-  <div className="min-h-screen relative flex items-center justify-center bg-gradient-to-br from-[#f4f4f4] via-[#eaeaea] to-[#d8d8d8] overflow-hidden">
-    {/* Pontos no background */}
-    <div
-      className="absolute inset-0 opacity-30 pointer-events-none"
-      style={{
-        backgroundImage:
-          "radial-gradient(circle at 2px 2px, rgba(89, 37, 179, 0.81) 1px, transparent 0)",
-        backgroundSize: "40px 40px",
-      }}
-    />
+  <div
+      className="min-h-screen relative flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
+        style={{ backgroundImage: `url(${bgImage})`,}}>
+          <AlertSuccess
+            open={!!alertSuccess}
+            onClose={() => setAlertSuccess("")}
+            message={alertSuccess}
+          />
+
+          <AlertError
+            open={!!alertError}
+            onClose={() => setAlertError("")}
+            message={alertError}
+          />
 
     {/*Efeitos de luz suaves */}
     <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">

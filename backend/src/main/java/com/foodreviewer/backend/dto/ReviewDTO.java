@@ -15,7 +15,7 @@ public record ReviewDTO(
                 review.getNota(),
                 review.getComentario(),
                 review.getUsuario() != null ? review.getUsuario().getId() : null,
-                review.getUsuario() != null ? review.getUsuario().getApelido() : "Usuário Anônimo"
+                review.getUsuario().getApelido()
         );
     }
 }

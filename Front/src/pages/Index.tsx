@@ -5,8 +5,13 @@ import { DecorativeBlobs } from "@/components/DecorativeBlobs";
 import labelIcon from "@/assets/label-icon.png";
 import reviewIcon from "@/assets/review-icon.png";
 import ingredientsIcon from "@/assets/ingredients-icon.png";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
+  const { usuario } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <DecorativeBlobs />
@@ -67,6 +72,17 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Botão visível apenas para ADMIN */}
+        {(usuario?.role === "ADMIN" || usuario?.role === "MESTRE") && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => navigate("/cadastro-produto")}
+              className="bg-[#8b009a] hover:bg-[#6d007a] text-white font-semibold py-2 px-6 rounded-lg shadow-md transition">
+              Cadastrar Produto
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Rodapé do site */}

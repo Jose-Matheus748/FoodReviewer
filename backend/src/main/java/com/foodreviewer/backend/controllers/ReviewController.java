@@ -22,9 +22,8 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final ProdutoService produtoService;
-    private final UsuarioRepository usuarioRepository; // ✅ Adicione esta linha
+    private final UsuarioRepository usuarioRepository;
 
-    // ✅ Construtor para injeção
     public ReviewController(ReviewService reviewService, ProdutoService produtoService, UsuarioRepository usuarioRepository) {
         this.reviewService = reviewService;
         this.produtoService = produtoService;

@@ -1,11 +1,12 @@
 package com.foodreviewer.backend.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,8 +24,8 @@ public class Ingrediente {
     private String nome;
 
     @ManyToMany(mappedBy = "ingredientes")
-    @JsonBackReference
-    private List<Produto> produtos;
+    @JsonIgnore // evita recursão Produto → Ingrediente → Produto
+    private List<Produto> produtos = new ArrayList<>();
 
     public Ingrediente() {}
 

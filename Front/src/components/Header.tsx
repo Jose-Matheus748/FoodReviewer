@@ -77,6 +77,16 @@ export const Header = () => {
 
         {/* 👤 Login / Logout */}
         <div className="flex items-center gap-3 flex-shrink-0">
+          {usuario?.role === "MESTRE" && (
+          <Link to="/admin/cadastrar">
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-muted-foreground hover:text-primary border border-border/60 hover:border-primary/50 bg-background hover:bg-accent/10 transition-all shadow-sm">
+              Criar Admin
+            </Button>
+          </Link>
+        )}
           {usuario ? (
             <>
               <div className="flex items-center gap-2">
