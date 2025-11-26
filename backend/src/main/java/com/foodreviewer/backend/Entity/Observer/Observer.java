@@ -1,4 +1,4 @@
-package com.foodreviewer.backend.Entity.observer;
+package com.foodreviewer.backend.Entity.Observer;
 
 public interface Observer {
     public void atualizarReview();
