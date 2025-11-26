@@ -110,7 +110,7 @@ export default function CadastroProduto() {
     if (imagem) formData.append("imagem", imagem);
 
     try {
-      const res = await fetch("https://foodreviewer-r7lq.onrender.com/produtos", {
+      const res = await fetch("https://foodreviewer-r7lq.onrender.com/api/produtos", {
         method: "POST",
         body: formData,
       });

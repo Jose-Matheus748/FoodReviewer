@@ -27,7 +27,7 @@ export const Header = () => {
 
     try {
       const response = await fetch(
-        `${API_URL}/produtos/search?nome=${encodeURIComponent(query)}`
+        `${API_URL}/api/produtos/search?nome=${encodeURIComponent(query)}`
       );
       if (!response.ok) throw new Error("Erro ao buscar produto");
 

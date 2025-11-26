@@ -29,7 +29,7 @@ export default function BuscarProdutos() {
     try {
       const API_URL = import.meta.env.VITE_API_URL;
           
-      const res = await fetch(`${API_URL}/produtos/search?nome=${encodeURIComponent(nome)}`);
+      const res = await fetch(`${API_URL}/api/produtos/search?nome=${encodeURIComponent(nome)}`);
 
       if (!res.ok) {
         setAlertError("Erro ao buscar produtos.");

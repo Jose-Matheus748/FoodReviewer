@@ -93,7 +93,7 @@ const ProductDetails = () => {
 
     const fetchProduct = async () => { //fetch pega as informações do back
       try {
-        const res = await fetch(`${API_URL}/produtos/${id}`);
+        const res = await fetch(`${API_URL}/api/produtos/${id}`);
         if (!res.ok) throw new Error("Erro ao buscar produto");
         const data = await res.json();
         setProductData({

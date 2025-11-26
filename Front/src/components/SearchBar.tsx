@@ -19,7 +19,7 @@ export const SearchBar = () => {
     if (!query.trim()) return;
 
     try {
-      const response = await fetch(`${API_URL}/produtos/search?nome=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_URL}/api/produtos/search?nome=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error("Erro ao buscar produto");
 
       const produtos = await response.json();

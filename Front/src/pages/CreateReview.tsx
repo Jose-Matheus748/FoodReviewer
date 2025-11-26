@@ -42,7 +42,7 @@ const CreateReview = () => {
         usuarioId: usuario?.id,
       };
 
-      const response = await fetch(`${API_URL}/reviews/produto/${id}`, {
+      const response = await fetch(`${API_URL}/api/reviews/produto/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewData),
