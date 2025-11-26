@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/tabelasNutricionais")
+@RequestMapping("/api/tabelasNutricionais")
 public class TabelaNutricionalController {
 
     private final TabelaNutricionalService tabelaNutricionalService;
@@ -31,7 +31,7 @@ public class TabelaNutricionalController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<TabelaNutricional>> findById(Long id){
+    public ResponseEntity<Optional<TabelaNutricional>> findById(@PathVariable Long id){
         try{
             return ResponseEntity.ok(tabelaNutricionalService.findById(id));
         }catch (EntityNotFoundException e){
