@@ -5,20 +5,21 @@ import { Input } from "@/components/ui/input";
 import { AlertSuccess } from "@/components/alerts/AlertSuccess";
 import { AlertError } from "@/components/alerts/AlertError";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
 export const SearchBar = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const [alertSuccess, setAlertSuccess] = useState("");
   const [alertError, setAlertError] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
+
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/produtos/search?nome=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_URL}/produtos/search?nome=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error("Erro ao buscar produto");
 
       const produtos = await response.json();

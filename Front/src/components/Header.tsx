@@ -5,16 +5,21 @@ import logo from "@/assets/logo-foodreviewer.png";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+import { AlertSuccess } from "@/components/alerts/AlertSuccess";
+import { AlertError } from "@/components/alerts/AlertError";
 
 export const Header = () => {
   const { usuario, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const isHomePage = location.pathname === "/";
+  const [alertSuccess, setAlertSuccess] = useState("");
+  const [alertError, setAlertError] = useState("");
 
   const [query, setQuery] = useState("");
+
+  const API_URL = import.meta.env.VITE_API_URL;
+
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,7 +27,7 @@ export const Header = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/produtos/search?nome=${encodeURIComponent(query)}`
+        `${API_URL}/produtos/search?nome=${encodeURIComponent(query)}`
       );
       if (!response.ok) throw new Error("Erro ao buscar produto");
 
@@ -31,18 +36,29 @@ export const Header = () => {
       if (produtos.length > 0) {
         navigate(`/produto/${produtos[0].id}`);
       } else {
-        alert("Produto não encontrado");
+        setAlertError("Produto não encontrado");
       }
     } catch (error) {
       console.error("Erro ao buscar produto:", error);
-      alert("Ocorreu um erro ao buscar o produto.");
+      setAlertError("Ocorreu um erro ao buscar o produto.");
     }
   };
 
   return (
     <header className="w-full border-b border-border/40 bg-background/60 backdrop-blur-md sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        {/* 🔹 Logo */}
+        <AlertSuccess
+            open={!!alertSuccess}
+            onClose={() => setAlertSuccess("")}
+            message={alertSuccess}
+          />
+
+          <AlertError
+            open={!!alertError}
+            onClose={() => setAlertError("")}
+            message={alertError}
+          />
+        {/*Logo */}
         <Link to="/" className="flex items-center gap-3 flex-shrink-0">
           <img
             src={logo}
@@ -54,7 +70,7 @@ export const Header = () => {
           </h1>
         </Link>
 
-        {/* 🔍 SearchBar — só aparece fora da Home */}
+        {/*SearchBar — só aparece fora da Home */}
         {!isHomePage && (
           <form
             onSubmit={handleSearch}
@@ -75,7 +91,7 @@ export const Header = () => {
           </form>
         )}
 
-        {/* 👤 Login / Logout */}
+        {/*botao de Login ou botao de Logout */}
         <div className="flex items-center gap-3 flex-shrink-0">
           {usuario?.role === "MESTRE" && (
           <Link to="/admin/cadastrar">

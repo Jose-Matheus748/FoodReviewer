@@ -8,8 +8,6 @@ import { User, Plus, Star, Edit, Trash } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
 // Interfaces de tipos definindo os dados que vao ser usados
 interface Review {
   id: number;
@@ -71,6 +69,8 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   // Função auxiliar para renderizar estrelas
   const renderStars = (rating: number) => (
     <div className="flex gap-1">
@@ -93,7 +93,7 @@ const ProductDetails = () => {
 
     const fetchProduct = async () => { //fetch pega as informações do back
       try {
-        const res = await fetch(`${API_BASE_URL}/produtos/${id}`);
+        const res = await fetch(`${API_URL}/produtos/${id}`);
         if (!res.ok) throw new Error("Erro ao buscar produto");
         const data = await res.json();
         setProductData({
@@ -121,7 +121,7 @@ const ProductDetails = () => {
 
     const fetchReviews = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/reviews/produto/${id}`);
+        const res = await fetch(`${API_URL}/reviews/produto/${id}`);
         if (res.ok) {
           const reviewsData: BackendReview[] = await res.json();
         
@@ -142,7 +142,7 @@ const ProductDetails = () => {
 
     fetchProduct();
     fetchReviews();
-  }, [id]);
+  }, [id, API_URL]);
 
   // Condições de carregamento e erro
   if (loading) {
@@ -177,7 +177,7 @@ const ProductDetails = () => {
 
   const handleDeleteReview = async (reviewId: number) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}?usuarioId=${usuario?.id}`, {
+      const res = await fetch(`${API_URL}/reviews/${reviewId}?usuarioId=${usuario?.id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Erro ao deletar avaliação");
@@ -186,7 +186,7 @@ const ProductDetails = () => {
       setReviews((prev) => prev.filter(r => r.id !== reviewId));
 
       // Recarrega os dados do produto (para atualizar averageRating)
-      const prodRes = await fetch(`${API_BASE_URL}/produtos/${id}`);
+      const prodRes = await fetch(`${API_URL}/produtos/${id}`);
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setProductData(prev => prev ? { ...prev, averageRating: prodData.averageRating } : prev);
@@ -226,7 +226,7 @@ const ProductDetails = () => {
           {/* Imagem do produto */}
           <div className="flex items-center justify-center bg-white/60 rounded-xl p-4 shadow-inner border border-gray-200">
             <img
-              src={`${API_BASE_URL}/produtos/${id}/imagem`}
+              src={`${API_URL}/produtos/${id}/imagem`}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
               }}

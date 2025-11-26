@@ -7,8 +7,6 @@ import logo from "@/assets/logo-foodreviewer.png";
 import { useAuth } from "../context/AuthContext";
 import bgImage from "@/assets/form-bg.png";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
 const CreateReview = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -23,10 +21,13 @@ const CreateReview = () => {
     setRating(rating === starIndex ? 0 : starIndex);
   };
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
 
     if (!id) {
       setError("ID do produto não encontrado.");
@@ -41,7 +42,7 @@ const CreateReview = () => {
         usuarioId: usuario?.id,
       };
 
-      const response = await fetch(`${API_BASE_URL}/reviews/produto/${id}`, {
+      const response = await fetch(`${API_URL}/reviews/produto/${id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(reviewData),
