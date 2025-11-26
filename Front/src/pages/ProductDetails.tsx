@@ -121,7 +121,7 @@ const ProductDetails = () => {
 
     const fetchReviews = async () => {
       try {
-        const res = await fetch(`${API_URL}/reviews/produto/${id}`);
+        const res = await fetch(`${API_URL}/api/reviews/produto/${id}`);
         if (res.ok) {
           const reviewsData: BackendReview[] = await res.json();
         
@@ -177,7 +177,7 @@ const ProductDetails = () => {
 
   const handleDeleteReview = async (reviewId: number) => {
     try {
-      const res = await fetch(`${API_URL}/reviews/${reviewId}?usuarioId=${usuario?.id}`, {
+      const res = await fetch(`${API_URL}/api/reviews/${reviewId}?usuarioId=${usuario?.id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Erro ao deletar avaliação");
@@ -186,7 +186,7 @@ const ProductDetails = () => {
       setReviews((prev) => prev.filter(r => r.id !== reviewId));
 
       // Recarrega os dados do produto (para atualizar averageRating)
-      const prodRes = await fetch(`${API_URL}/produtos/${id}`);
+      const prodRes = await fetch(`${API_URL}/api/produtos/${id}`);
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setProductData(prev => prev ? { ...prev, averageRating: prodData.averageRating } : prev);
@@ -226,7 +226,7 @@ const ProductDetails = () => {
           {/* Imagem do produto */}
           <div className="flex items-center justify-center bg-white/60 rounded-xl p-4 shadow-inner border border-gray-200">
             <img
-              src={`${API_URL}/produtos/${id}/imagem`}
+              src={`${API_URL}/api/produtos/${id}/imagem`}
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
               }}
