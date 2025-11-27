@@ -6,8 +6,6 @@ import { Star } from "lucide-react";
 import logo from "@/assets/logo-foodreviewer.png";
 import { useAuth } from "../context/AuthContext";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://foodreviewer-r7lq.onrender.com/produtos";
-
 const UpdateReview = () => {
   const navigate = useNavigate();
   const { id, reviewId } = useParams<{ id: string; reviewId: string }>();
@@ -20,6 +18,8 @@ const UpdateReview = () => {
   const [error, setError] = useState<string | null>(null);
   const [loadingReview, setLoadingReview] = useState(true);
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     if (!id || !reviewId) {
       setError("ID do produto ou avaliação não encontrados.");
@@ -29,7 +29,7 @@ const UpdateReview = () => {
 
     const fetchReview = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}`);
+        const res = await fetch(`${API_URL}/api/reviews/${reviewId}`);
         if (!res.ok) throw new Error("Erro ao buscar avaliação");
 
         const data = await res.json();
@@ -51,7 +51,7 @@ const UpdateReview = () => {
     };
 
     fetchReview();
-  }, [id, reviewId, usuario]);
+  }, [id, reviewId, usuario, API_URL]);
 
   const handleStarClick = (starIndex: number) => {
     setRating(rating === starIndex ? 0 : starIndex);
@@ -75,7 +75,7 @@ const UpdateReview = () => {
         usuarioId: usuario?.id,
       };
 
-      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+      const response = await fetch(`${API_URL}/api/reviews/${reviewId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedReview),
