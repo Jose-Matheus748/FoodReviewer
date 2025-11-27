@@ -22,9 +22,16 @@ export default function BuscarProdutos() {
     try {
       setCarregando(true);
 
-      const response = await fetch(`${API_URL}/api/produtos/buscar?nome=${busca}`);
-      const data = await response.json();
+      const response = await fetch(
+        `${API_URL}/api/produtos/search?nome=${encodeURIComponent(busca)}`
+      );
 
+      if (!response.ok) {
+        console.error("Erro ao buscar produtos");
+        return;
+      }
+
+      const data = await response.json();
       setResultados(data);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
@@ -39,7 +46,9 @@ export default function BuscarProdutos() {
 
   return (
     <div className="flex flex-col items-center w-full mt-10 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Buscar Produtos</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
+        Buscar Produtos
+      </h1>
 
       <div className="flex gap-3 w-full max-w-xl">
         <Input
@@ -54,15 +63,17 @@ export default function BuscarProdutos() {
       </div>
 
       {/* GRID DE RESULTADOS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
-        gap-6 mt-10 w-full max-w-7xl">
-
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
+        gap-6 mt-10 w-full max-w-7xl"
+      >
         {resultados.map((produto) => (
           <Link to={`/produto/${produto.id}`} key={produto.id}>
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-                rounded-xl p-4 shadow-md hover:shadow-accent/30 
-                transition-all hover:-translate-y-1 cursor-pointer">
-
+            <div
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+              rounded-xl p-4 shadow-md hover:shadow-accent/30 
+              transition-all hover:-translate-y-1 cursor-pointer"
+            >
               {/* IMAGEM DO PRODUTO */}
               <img
                 src={`${API_URL}/api/produtos/${produto.id}/imagem`}
