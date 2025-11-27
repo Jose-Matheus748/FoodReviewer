@@ -57,6 +57,7 @@ export default function BuscarProdutos() {
       <Header hideSearch />
 
       <div className="flex flex-col items-center w-full max-w-7xl mx-auto mt-16 px-6">
+        {/* TÍTULO E SEARCH */}
         <div className="text-center mb-2">
           <h1
             className="text-4xl md:text-5xl font-bold bg-gradient-to-r 
@@ -69,6 +70,7 @@ export default function BuscarProdutos() {
           </p>
         </div>
 
+        {/* 🔍 SEARCHBAR MAIS PROFISSIONAL */}
         <div className="relative w-full max-w-2xl mb-5 group">
           <div className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-accent rounded-full blur-xl opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-r from-accent/30 via-primary/20 to-accent/30 rounded-full blur-2xl opacity-40" />
@@ -90,10 +92,10 @@ export default function BuscarProdutos() {
           </div>
         </div>
 
+        {/* GRID DE RESULTADOS CENTRALIZADA */}
         <div className="flex justify-center w-full mb-10">
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
-            style={{ justifyItems: "center" }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-center justify-items-center"
           >
             {carregando && (
               <div className="flex justify-center items-center w-full col-span-full">
@@ -129,8 +131,15 @@ export default function BuscarProdutos() {
             {resultados.map((produto) => (
               <Link to={`/produto/${produto.id}`} key={produto.id}>
                 <div
-                  className="bg-gradient-to-br from-purple-50 via-white to-white border border-border/40 rounded-2xl p-5 shadow-md
-                  hover:shadow-lg hover:shadow-accent/50 hover:-translate-y-2 transition-transform duration-300 cursor-pointer w-60"
+                  className="
+                    bg-gray-50 dark:bg-gray-800 
+                    border border-gray-200 dark:border-gray-700 
+                    rounded-2xl p-5 
+                    shadow-sm dark:shadow-md
+                    hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-2 
+                    transition-transform duration-300 cursor-pointer 
+                    w-60
+                  "
                 >
                   <img
                     src={`${API_URL}/api/produtos/${produto.id}/imagem`}
