@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { Header } from "@/components/Header";
+import { Search } from "lucide-react";
 
 interface Produto {
   id: number;
@@ -14,100 +15,125 @@ export default function BuscarProdutos() {
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<Produto[]>([]);
   const [carregando, setCarregando] = useState(false);
+
+  const [searchParams] = useSearchParams();
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const buscarProdutos = async () => {
-    if (!busca.trim()) return;
+  const termoURL = searchParams.get("nome") || "";
 
-    try {
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!termoURL.trim()) return;
+
+      setBusca(termoURL);
       setCarregando(true);
 
-      const response = await fetch(
-        `${API_URL}/api/produtos/search?nome=${encodeURIComponent(busca)}`
-      );
-
-      if (!response.ok) {
-        console.error("Erro ao buscar produtos");
-        return;
+      try {
+        const response = await fetch(`${API_URL}/api/produtos/buscar?nome=${encodeURIComponent(termoURL)}`);
+        if (!response.ok) {
+          console.error("Resposta não OK ao buscar produtos:", response.status);
+          setResultados([]);
+          return;
+        }
+        const data = await response.json();
+        setResultados(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Erro ao buscar produtos:", error);
+        setResultados([]);
+      } finally {
+        setCarregando(false);
       }
+    };
 
-      const data = await response.json();
-      setResultados(data);
-    } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-    } finally {
-      setCarregando(false);
-    }
-  };
+    fetchData();
+  }, [termoURL, API_URL]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") buscarProdutos();
-  };
 
   return (
-    <div className="flex flex-col items-center w-full mt-10 px-4">
-      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">
-        Buscar Produtos
-      </h1>
+    <>
+      <Header hideSearch />
 
-      <div className="flex gap-3 w-full max-w-xl">
-        <Input
-          placeholder="Digite o nome do produto..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <Button onClick={buscarProdutos} disabled={carregando}>
-          {carregando ? "Buscando..." : "Buscar"}
-        </Button>
-      </div>
+      <div className="flex flex-col items-center w-full mt-16 px-4">
 
-      {/* GRID DE RESULTADOS */}
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
-        gap-6 mt-10 w-full max-w-7xl"
-      >
-        {resultados.map((produto) => (
-          <Link to={`/produto/${produto.id}`} key={produto.id}>
-            <div
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-              rounded-xl p-4 shadow-md hover:shadow-accent/30 
-              transition-all hover:-translate-y-1 cursor-pointer"
-            >
-              {/* IMAGEM DO PRODUTO */}
-              <img
-                src={`${API_URL}/api/produtos/${produto.id}/imagem`}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
-                }}
-                className="w-full h-40 object-contain bg-white rounded-lg"
-              />
+        {/* TÍTULO E SEARCH */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r 
+            from-accent via-primary to-accent bg-clip-text text-transparent drop-shadow-sm">
+            Explorar Produtos
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm">
+            Busque, compare e descubra novos alimentos
+          </p>
+        </div>
 
-              <div className="mt-3 text-gray-900 dark:text-white">
-                <p className="font-bold text-sm truncate">{produto.nome}</p>
+        {/* 🔍 SEARCHBAR MAIS PROFISSIONAL */}
+        <div className="relative w-full max-w-2xl mb-10 group">
+          <div className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-accent rounded-full blur-xl opacity-20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-accent/30 via-primary/20 to-accent/30 rounded-full blur-2xl opacity-40" />
 
-                {produto.marca && (
-                  <p className="text-gray-600 dark:text-gray-300 text-xs truncate">
-                    {produto.marca}
-                  </p>
-                )}
+          <div className="relative flex items-center bg-background/70 backdrop-blur-xl border-2 border-border/50 rounded-full shadow-xl w-full px-5 py-4">
+            <Search className="h-5 w-5 text-primary mr-3" />
+            <Input
+              placeholder="Buscar produtos..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && window.location.assign(`/buscar-produtos?nome=${busca}`)}
+              className="border-0 shadow-none bg-transparent text-lg focus-visible:ring-0"
+            />
+          </div>
+        </div>
 
-                {produto.preco !== undefined && (
-                  <p className="text-accent font-semibold mt-2 text-sm">
-                    R$ {produto.preco.toFixed(2)}
-                  </p>
-                )}
+        {/* GRID DE RESULTADOS */}
+        <div
+          className="grid place-items-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
+          gap-8 w-full max-w-7xl"
+        >
+          {carregando && (
+            <p className="text-lg text-primary font-medium animate-pulse">
+              Buscando produtos...
+            </p>
+          )}
+
+          {resultados.map((produto) => (
+            <Link to={`/produto/${produto.id}`} key={produto.id}>
+              <div
+                className="bg-card border border-border/40 rounded-2xl p-5 shadow-lg 
+                hover:shadow-accent/40 hover:-translate-y-1 transition-all cursor-pointer w-60"
+              >
+                <img
+                  src={`${API_URL}/api/produtos/${produto.id}/imagem`}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+                  }}
+                  className="w-full h-40 object-contain bg-white rounded-lg"
+                />
+
+                <div className="mt-4 text-center">
+                  <p className="font-bold text-lg truncate text-primary">{produto.nome}</p>
+
+                  {produto.marca && (
+                    <p className="text-muted-foreground text-sm truncate">
+                      {produto.marca}
+                    </p>
+                  )}
+
+                  {produto.preco !== undefined && (
+                    <p className="text-accent font-semibold mt-2 text-md">
+                      R$ {produto.preco.toFixed(2)}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </Link>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
 
-      {resultados.length === 0 && !carregando && (
-        <p className="mt-10 text-gray-600 dark:text-gray-300">
-          Nenhum resultado encontrado.
-        </p>
-      )}
-    </div>
+        {!carregando && resultados.length === 0 && (
+          <p className="mt-10 text-gray-600 dark:text-gray-300 text-lg">
+            Nenhum produto encontrado.
+          </p>
+        )}
+      </div>
+    </>
   );
 }

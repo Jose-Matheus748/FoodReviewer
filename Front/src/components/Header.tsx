@@ -8,7 +8,8 @@ import { useState } from "react";
 import { AlertSuccess } from "@/components/alerts/AlertSuccess";
 import { AlertError } from "@/components/alerts/AlertError";
 
-export const Header = () => {
+export const Header = ({ hideSearch = false }) => {
+
   const { usuario, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ export const Header = () => {
         </Link>
 
         {/*SearchBar — só aparece fora da Home */}
-        {!isHomePage && (
+        {!isHomePage && !hideSearch && (
           <form
             onSubmit={handleSearch}
             className="relative flex items-center justify-center flex-1 max-w-lg group"
