@@ -47,17 +47,8 @@ export const Header = () => {
   return (
     <header className="w-full border-b border-border/40 bg-background/60 backdrop-blur-md sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <AlertSuccess
-            open={!!alertSuccess}
-            onClose={() => setAlertSuccess("")}
-            message={alertSuccess}
-          />
-
-          <AlertError
-            open={!!alertError}
-            onClose={() => setAlertError("")}
-            message={alertError}
-          />
+          <AlertSuccess open={!!alertSuccess} onClose={() => setAlertSuccess("")} message={alertSuccess} />
+          <AlertError open={!!alertError} onClose={() => setAlertError("")} message={alertError} />
         {/*Logo */}
         <Link to="/" className="flex items-center gap-3 flex-shrink-0">
           <img

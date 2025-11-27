@@ -86,9 +86,28 @@ const Index = () => {
       </main>
 
       {/* Rodapé do site */}
-      <footer className="border-t border-border/50 py-8 mt-12">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2025 FoodReviewer. Projeto acadêmico.</p>
+      <footer className="relative mt-20">
+        <div className="w-full py-10 px-6 bg-gradient-to-r from-[#8b009a] via-[#c46aff] to-[#f7d86b] text-white shadow-2xl relative overflow-hidden">
+
+          {/* Efeito de brilho suave */}
+          <div className="absolute inset-0 bg-white/10 blur-3xl opacity-30 pointer-events-none"></div>
+          <div className="relative z-10 container mx-auto text-center">
+            <h3 className="text-2xl font-bold drop-shadow-lg">FoodReviewer</h3>
+            <p className="mt-2 text-sm md:text-base font-medium opacity-90">
+              Projeto acadêmico da Universidade de Fortaleza (Unifor)
+            </p>
+            <p className="text-sm md:text-base mt-1 opacity-90">
+              Realizado pelos alunos:
+            </p>
+            <p className="text-sm md:text-base font-semibold mt-1">
+              José Matheus • Cauet Rodrigues • Luigi Craveiro • Pedro Davi
+            </p>
+            {/* Linha fina */}
+            <div className="w-24 h-[2px] bg-white/40 mx-auto mt-5 rounded-full"></div>
+            <p className="text-xs opacity-80 mt-4">
+              © 2025 FoodReviewer — Todos os direitos reservados.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

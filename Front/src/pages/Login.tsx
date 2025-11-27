@@ -73,18 +73,8 @@ export default function Login() {
   <div
       className="min-h-screen relative flex items-center justify-center bg-cover bg-center bg-no-repeat overflow-hidden"
         style={{ backgroundImage: `url(${bgImage})`,}}>
-          <AlertSuccess
-            open={!!alertSuccess}
-            onClose={() => setAlertSuccess("")}
-            message={alertSuccess}
-          />
-
-          <AlertError
-            open={!!alertError}
-            onClose={() => setAlertError("")}
-            message={alertError}
-          />
-
+          <AlertSuccess open={!!alertSuccess} onClose={() => setAlertSuccess("")} message={alertSuccess} />
+          <AlertError open={!!alertError} onClose={() => setAlertError("")} message={alertError} />
     {/*Efeitos de luz suaves */}
     <div className="absolute top-0 left-0 w-[600px] h-[600px] -translate-x-1/3 -translate-y-1/3 pointer-events-none">
       <div className="absolute inset-0 bg-gradient-to-br from-accent/25 via-accent/15 to-transparent rounded-full blur-3xl animate-pulse" />

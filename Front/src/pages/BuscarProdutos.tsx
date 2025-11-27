@@ -1,103 +1,102 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Search, Package } from "lucide-react";
-import { AlertError } from "@/components/alerts/AlertError";
+import { Link } from "react-router-dom";
 
-
-type Produto = {
+interface Produto {
   id: number;
   nome: string;
   marca?: string;
   preco?: number;
-};
+}
 
 export default function BuscarProdutos() {
-  const [nome, setNome] = useState("");
+  const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<Produto[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [alertError, setAlertError] = useState("");
+  const [carregando, setCarregando] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
 
-
-  const buscar = async () => {
-    if (!nome.trim()) return;
-
-    setAlertError("");
-    setLoading(true);
+  const buscarProdutos = async () => {
+    if (!busca.trim()) return;
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL;
-          
-      const res = await fetch(`${API_URL}/api/produtos/search?nome=${encodeURIComponent(nome)}`);
+      setCarregando(true);
 
-      if (!res.ok) {
-        setAlertError("Erro ao buscar produtos.");
-        return;
-      }
+      const response = await fetch(`${API_URL}/api/produtos/buscar?nome=${busca}`);
+      const data = await response.json();
 
-      const data: Produto[] = await res.json();
       setResultados(data);
-
-    } catch (e) {
-      setAlertError("Falha ao conectar ao servidor.");
+    } catch (error) {
+      console.error("Erro ao buscar produtos:", error);
     } finally {
-      setLoading(false);
+      setCarregando(false);
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") buscarProdutos();
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center pt-20 px-4">
-      <AlertError open={!!alertError} onClose={() => setAlertError("")} message={alertError}/>
+    <div className="flex flex-col items-center w-full mt-10 px-4">
+      <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Buscar Produtos</h1>
 
-      <h1 className="text-2xl font-bold text-white mb-6">
-        Buscar Produtos
-      </h1>
-
-      <div className="w-full max-w-xl bg-white/10 p-6 rounded-xl shadow-lg space-y-4 border border-white/20">
-
-        <Label className="text-white font-semibold">Nome do produto</Label>
-        <div className="relative">
-          <Search className="absolute left-3 top-2.5 text-white/50 h-5 w-5" />
-          <Input
-            placeholder="Ex: Toddynho"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="pl-10 bg-white/15 text-white border-white/20"
-          />
-        </div>
-
-        <Button 
-          onClick={buscar}
-          disabled={loading}
-          className="w-full bg-accent text-primary font-bold"
-        >
-          {loading ? "Buscando..." : "Buscar"}
+      <div className="flex gap-3 w-full max-w-xl">
+        <Input
+          placeholder="Digite o nome do produto..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <Button onClick={buscarProdutos} disabled={carregando}>
+          {carregando ? "Buscando..." : "Buscar"}
         </Button>
       </div>
 
-      {/* Resultados */}
-      <div className="w-full max-w-2xl mt-10 space-y-4">
+      {/* GRID DE RESULTADOS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
+        gap-6 mt-10 w-full max-w-7xl">
+
         {resultados.map((produto) => (
-          <div 
-            key={produto.id}
-            className="bg-white/10 border border-white/20 rounded-lg p-4 flex items-center gap-4"
-          >
-            <Package className="text-accent w-6 h-6" />
+          <Link to={`/produto/${produto.id}`} key={produto.id}>
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+                rounded-xl p-4 shadow-md hover:shadow-accent/30 
+                transition-all hover:-translate-y-1 cursor-pointer">
 
-            <div className="text-white">
-              <p className="font-bold text-lg">{produto.nome}</p>
-              {produto.marca && (
-                <p className="text-white/70 text-sm">{produto.marca}</p>
-              )}
-              {produto.preco && (
-                <p className="text-white/80 mt-1">R$ {produto.preco}</p>
-              )}
+              {/* IMAGEM DO PRODUTO */}
+              <img
+                src={`${API_URL}/api/produtos/${produto.id}/imagem`}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/placeholder.svg";
+                }}
+                className="w-full h-40 object-contain bg-white rounded-lg"
+              />
+
+              <div className="mt-3 text-gray-900 dark:text-white">
+                <p className="font-bold text-sm truncate">{produto.nome}</p>
+
+                {produto.marca && (
+                  <p className="text-gray-600 dark:text-gray-300 text-xs truncate">
+                    {produto.marca}
+                  </p>
+                )}
+
+                {produto.preco !== undefined && (
+                  <p className="text-accent font-semibold mt-2 text-sm">
+                    R$ {produto.preco.toFixed(2)}
+                  </p>
+                )}
+              </div>
             </div>
-
-          </div>
+          </Link>
         ))}
       </div>
+
+      {resultados.length === 0 && !carregando && (
+        <p className="mt-10 text-gray-600 dark:text-gray-300">
+          Nenhum resultado encontrado.
+        </p>
+      )}
     </div>
   );
 }
