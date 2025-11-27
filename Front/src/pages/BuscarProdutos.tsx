@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Link, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Produto {
   id: number;
@@ -12,6 +13,7 @@ interface Produto {
 }
 
 export default function BuscarProdutos() {
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
   const [resultados, setResultados] = useState<Produto[]>([]);
   const [carregando, setCarregando] = useState(false);
@@ -29,7 +31,7 @@ export default function BuscarProdutos() {
       setCarregando(true);
 
       try {
-        const response = await fetch(`${API_URL}/api/produtos/buscar?nome=${encodeURIComponent(termoURL)}`);
+        const response = await fetch(`${API_URL}/api/produtos/search?nome=${encodeURIComponent(termoURL)}`);
         if (!response.ok) {
           console.error("Resposta não OK ao buscar produtos:", response.status);
           setResultados([]);
@@ -52,14 +54,14 @@ export default function BuscarProdutos() {
   return (
     <>
       <Header hideSearch />
-
+    
       <div className="flex flex-col items-center w-full mt-16 px-4">
 
         {/* TÍTULO E SEARCH */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r 
+        <div className="text-center mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r 
             from-accent via-primary to-accent bg-clip-text text-transparent drop-shadow-sm">
-            Explorar Produtos
+            Explorar produtos
           </h1>
           <p className="text-muted-foreground mt-2 text-sm">
             Busque, compare e descubra novos alimentos
@@ -67,18 +69,23 @@ export default function BuscarProdutos() {
         </div>
 
         {/* 🔍 SEARCHBAR MAIS PROFISSIONAL */}
-        <div className="relative w-full max-w-2xl mb-10 group">
+        <div className="relative w-full max-w-2xl mb-4 group">
           <div className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-accent rounded-full blur-xl opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-r from-accent/30 via-primary/20 to-accent/30 rounded-full blur-2xl opacity-40" />
 
-          <div className="relative flex items-center bg-background/70 backdrop-blur-xl border-2 border-border/50 rounded-full shadow-xl w-full px-5 py-4">
+          <div className="relative flex items-center bg-background/70 backdrop-blur-xl border-2 border-border/50 rounded-full shadow-xl w-full px-5 py-2">
             <Search className="h-5 w-5 text-primary mr-3" />
             <Input
               placeholder="Buscar produtos..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && window.location.assign(`/buscar-produtos?nome=${busca}`)}
-              className="border-0 shadow-none bg-transparent text-lg focus-visible:ring-0"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  navigate(`/buscar-produtos?nome=${busca}`);
+                }
+              }}
+              className="border-0 shadow-none bg-transparent text-base focus-visible:ring-0"
             />
           </div>
         </div>
